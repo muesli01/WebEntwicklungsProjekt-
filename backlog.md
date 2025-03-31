@@ -1,4 +1,4 @@
-# Auto Webshop - Backlog
+# JaMu Cars - Backlog
 
 | ID  | Feature                           | Beschreibung                                             | Abschätzung | Abhängigkeiten  | Tags                    |
 |-----|-----------------------------------|----------------------------------------------------------|-------------|-----------------|-------------------------|
