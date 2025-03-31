@@ -6,8 +6,8 @@
 
 ## Aufgaben für jedes Sprint:
 ### Sprint 1:
-- [] Registrierung & Login implementieren
-- [] Benutzerprofil erstellen
+- [ ] Registrierung & Login implementieren
+- [ ] Benutzerprofil erstellen
 - [ ] Produktlisten und Details anzeigen
 - [ ] Warenkorb-Funktionalität implementieren
 
