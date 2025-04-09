@@ -27,4 +27,21 @@ class DataHandler {
         return $this->db->executeQuery($query, $params);
     }
 }
+// JSON-Antwort
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Content-Type: application/json');
+    $handler = new DataHandler();
+
+    if ($_POST['action'] === 'register') {
+        $user = new User();
+        $success = $user->register($_POST['username'], $_POST['email'], $_POST['password']);
+
+        echo json_encode([
+            "success" => $success,
+            "message" => $success ? "Registrierung erfolgreich!" : "Registrierung fehlgeschlagen."
+        ]);
+        exit;
+    }
+}
+
 ?>

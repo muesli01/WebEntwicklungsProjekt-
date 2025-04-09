@@ -21,7 +21,7 @@
                     <li class="nav-item"><a class="nav-link" href="sites/cart.html">Warenkorb</a></li>
                     <li class="nav-item"><a class="nav-link" href="sites/imprint.html">Impressum</a></li>
                     <li class="nav-item"><a class="nav-link" href="sites/terms.html">AGB</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-primary text-white" href="Backend/models/userСlass.php">Registrieren</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary text-white" href="Frontend/sites/register.html">Registrieren</a></li>
                 </ul>   
             </div>
         </div>
