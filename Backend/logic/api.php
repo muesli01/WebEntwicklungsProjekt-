@@ -5,7 +5,7 @@ header("Access-Control-Allow-Methods: GET, POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
 require_once "../config/dataHandler.php"; // Подключаем обработчик данных
-require_once "../models/userСlass.php"; // Подключаем модель пользователя
+require_once "../models/userClass.php"; // Подключаем модель пользователя
 
 $dataHandler = new DataHandler(); // Создаем объект обработки данных
 

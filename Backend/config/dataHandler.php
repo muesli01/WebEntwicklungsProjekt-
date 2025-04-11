@@ -1,6 +1,11 @@
+
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once "dbaccess.php"; // Подключение к базе данных
-require_once __DIR__ . "/../models/userСlass.php"; // Подключаем класс пользователя
+require_once __DIR__ . "/../models/userClass.php"; // Подключаем класс пользователя
  // Подключаем класс пользователя
 
 class DataHandler {
@@ -35,11 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'register') {
         $user = new User();
         $success = $user->register($_POST['username'], $_POST['email'], $_POST['password']);
-
-        echo json_encode([
-            "success" => $success,
-            "message" => $success ? "Registrierung erfolgreich!" : "Registrierung fehlgeschlagen."
-        ]);
+        if ($success) {
+            echo json_encode(["message" => "Registrierung erfolgreich!"]);
+        } else {
+            echo json_encode(["message" => "Registrierung fehlgeschlagen. Schau bitte ins error log."]);
+        }
+        
         exit;
     }
 }

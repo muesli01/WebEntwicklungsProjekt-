@@ -10,10 +10,13 @@ class User {
 
     public function register($username, $email, $password) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
         $query = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
         $params = [$username, $email, $hashedPassword];
+
         return $this->db->executeQuery($query, $params);
     }
+    
 
     public function login($email, $password) {
         session_start();

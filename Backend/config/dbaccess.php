@@ -24,7 +24,8 @@ class DBAccess {
     public function executeQuery($query, $params = []) {
         $stmt = $this->conn->prepare($query);
         if (!$stmt) {
-            die("Query preparation failed: " . $this->conn->error);
+            error_log("Query prepare failed: " . $this->conn->error);
+            return false;
         }
     
         if ($params) {
@@ -33,11 +34,19 @@ class DBAccess {
         }
     
         if (!$stmt->execute()) {
-            die("Query execution failed: " . $stmt->error);
+            error_log("Query execute failed: " . $stmt->error);
+            return false;
         }
     
-        return $stmt->get_result();
+        // SELECT-запрос возвращает результат
+        if (stripos($query, 'SELECT') === 0) {
+            return $stmt->get_result();
+        }
+    
+        // INSERT, UPDATE, DELETE — вернуть true
+        return true;
     }
+    
     
 }
 ?>

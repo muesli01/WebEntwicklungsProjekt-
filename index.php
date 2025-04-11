@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="de">
 
-<?php 
-    include 'Frontend/includes/pagehead.html'
+<?php
+include 'Frontend/includes/pagehead.html'
     ?>
+
 <body>
 
- 
+
     <?php include 'Frontend/includes/nav.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- 
+
     <header class="text-center p-5 bg-light">
         <h1>Willkommen im Auto Webshop!</h1>
         <p>Finden Sie Ihr Traumauto mit nur wenigen Klicks.</p>
@@ -53,6 +54,7 @@
 
     <?php include 'Frontend/includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
 </body>
+
 </html>
