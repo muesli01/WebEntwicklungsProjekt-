@@ -10,6 +10,7 @@
 </head>
 
 <body>
+
     <div class="container mt-4">
         <h2>Ihr Warenkorb</h2>
         <div id="cart-content" class="row"></div>
@@ -17,6 +18,7 @@
 
     <script>
         $(document).ready(function () {
+            // Загрузка содержимого корзины
             $.ajax({
                 url: "../../Backend/logic/cartHandler.php",
                 method: "GET",
@@ -36,13 +38,19 @@
                         html += `
                             <div class="col-md-12 mb-3 border-bottom d-flex align-items-center">
                                 <img src="../res/img/${product.image}" alt="${product.name}" class="cart-img me-3">
-                                <div>
+                                <div class="flex-grow-1">
                                     <h5>${product.name}</h5>
-                                    <p>Menge: ${product.quantity}</p>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <button class="btn btn-secondary btn-sm me-2 decrease-qty" data-id="${product.id}">-</button>
+                                        <span class="me-2">${product.quantity}</span>
+                                        <button class="btn btn-secondary btn-sm me-2 increase-qty" data-id="${product.id}">+</button>
+                                    </div>
                                     <p>Preis: ${product.price} &euro; | Gesamt: ${subtotal.toFixed(2)} &euro;</p>
+                                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${product.id}">Entfernen</button>
                                 </div>
                             </div>
                         `;
+
                     });
 
                     html += `<h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`;
@@ -53,8 +61,64 @@
                     $("#cart-content").html("<p>Fehler beim Laden des Warenkorbs.</p>");
                 }
             });
+            // Уменьшить количество
+            $("body").on("click", ".decrease-qty", function () {
+                const productId = $(this).data("id");
+
+                $.ajax({
+                    url: "../../Backend/logic/cartHandler.php",
+                    method: "POST",
+                    data: { action: "decrease", productId: productId },
+                    dataType: "json",
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("Fehler beim Aktualisieren der Menge.");
+                    }
+                });
+            });
+
+            // Увеличить количество
+            $("body").on("click", ".increase-qty", function () {
+                const productId = $(this).data("id");
+
+                $.ajax({
+                    url: "../../Backend/logic/cartHandler.php",
+                    method: "POST",
+                    data: { action: "increase", productId: productId },
+                    dataType: "json",
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("Fehler beim Aktualisieren der Menge.");
+                    }
+                });
+            });
+
+
+            // Удаление товара из корзины
+            $("body").on("click", ".remove-from-cart", function () {
+                const productId = $(this).data("id");
+
+                $.ajax({
+                    url: "../../Backend/logic/cartHandler.php",
+                    method: "POST",
+                    data: { action: "remove", productId: productId },
+                    dataType: "json",
+                    success: function (response) {
+                        alert(response.message);
+                        location.reload(); // Перезагружаем корзину после удаления
+                    },
+                    error: function () {
+                        alert("Fehler beim Entfernen des Produkts.");
+                    }
+                });
+            });
         });
     </script>
+
 </body>
 
 </html>

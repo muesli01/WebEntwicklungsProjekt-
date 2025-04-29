@@ -13,9 +13,14 @@
         <div class="row" id="product-container"></div>
     </div>
 
+    <!-- Корзина иконка -->
+    <a href="warenkorb.html" id="cart-icon">
+        🛒 <span id="cart-count">0</span>
+    </a>
+
     <script>
         $(document).ready(function () {
-            // Loading of goods
+            // Загрузка товаров
             $.ajax({
                 url: "../../Backend/logic/productHandler.php",
                 method: "GET",
@@ -43,11 +48,11 @@
                     $("#product-container").html("<p>Produkte konnten nicht geladen werden.</p>");
                 }
             });
-    
-            // Processing a click on the "In den Warenkorb" button
+
+            // Клик по кнопке "In den Warenkorb"
             $("body").on("click", ".add-to-cart", function () {
                 const productId = $(this).data("id");
-    
+
                 $.ajax({
                     url: "../../Backend/logic/cartHandler.php",
                     method: "POST",
@@ -55,14 +60,34 @@
                     dataType: "json",
                     success: function (response) {
                         alert(response.message);
+                        updateCartCount(); // Обновляем количество в кружке после добавления
                     },
                     error: function () {
                         alert("Fehler beim Hinzufügen zum Warenkorb.");
                     }
                 });
             });
+
+            // Функция для обновления количества товаров в корзине
+            function updateCartCount() {
+                $.ajax({
+                    url: "../../Backend/logic/cartHandler.php",
+                    method: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        let totalItems = 0;
+                        data.forEach(product => {
+                            totalItems += product.quantity;
+                        });
+                        $("#cart-count").text(totalItems);
+                    }
+                });
+            }
+
+            // Загружаем количество при старте страницы
+            updateCartCount();
         });
     </script>
-    
+
 </body>
 </html>
