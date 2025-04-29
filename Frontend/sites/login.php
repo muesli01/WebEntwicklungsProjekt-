@@ -3,7 +3,7 @@ session_start();
 
 $message = "";
 
-// Если форма отправлена
+// Wenn das Formular gesendet wurde
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     require_once "../../Backend/models/userClass.php";
     $user = new User();
@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($user->login($email, $password)) {
         $message = "Login erfolgreich!";
-        header("Location: dashboard.php"); // замените на свою защищенную страницу
+        header("Location: dashboard.php"); // Zielseite nach Login
         exit;
     } else {
         $message = "Login fehlgeschlagen. E-Mail oder Passwort ist falsch.";
@@ -25,24 +25,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="de">
 <head>
     <meta charset="UTF-8" />
-    <title>Login</title>
-    <link rel="stylesheet" href="../res/css/style.css" />
+    <title>Login – Auto Webshop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/PhpFiles/Webshop/WebEntwicklungsProjekt-/Frontend/res/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <!-- JavaScript für die Navigation -->
+    <script src="../js/nav.js" defer></script>
 </head>
 <body>
-    <h2>Login</h2>
 
-    <?php if (!empty($message)): ?>
-        <p style="color: red;"><?php echo $message; ?></p>
-    <?php endif; ?>
+    <!-- Navigation wird hier eingefügt -->
+    <div id="nav-placeholder"></div>
 
-    <form method="POST" action="">
-        <label for="email">E-Mail:</label><br />
-        <input type="email" name="email" required /><br />
+    <div class="container my-5">
+        <h2>Login</h2>
 
-        <label for="password">Passwort:</label><br />
-        <input type="password" name="password" required /><br />
+        <?php if (!empty($message)): ?>
+            <p style="color: red;"><?php echo $message; ?></p>
+        <?php endif; ?>
 
-        <button type="submit">Einloggen</button>
-    </form>
+        <form method="POST" action="">
+            <div class="mb-3">
+                <label for="email" class="form-label">E-Mail:</label>
+                <input type="email" name="email" id="email" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Passwort:</label>
+                <input type="password" name="password" id="password" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Einloggen</button>
+        </form>
+    </div>
+
 </body>
 </html>
