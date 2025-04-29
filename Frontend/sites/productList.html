@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8" />
     <title>Produkte</title>
@@ -8,9 +9,27 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/nav.js" defer></script>
 </head>
+
 <body>
-    
+
     <div id="nav-placeholder"></div>
+
+    <div class="container mt-3">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="text" id="searchInput" class="form-control" placeholder="Produkte durchsuchen...">
+            </div>
+            <div class="col-md-6">
+                <select id="priceFilter" class="form-select">
+                    <option value="all">Alle Preise</option>
+                    <option value="under50">Unter 50 000€</option>
+                    <option value="50to100">50 000€ – 100 000€</option>
+                    <option value="over100">Über 100 000€</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
 
     <div class="container mt-4">
         <h2 class="mb-4">Alle Produkte</h2>
@@ -30,24 +49,69 @@
                 method: "GET",
                 dataType: "json",
                 success: function (data) {
-                    let html = "";
-                    data.forEach(product => {
-                        html += `
-                            <div class="col-md-4 mb-4">
-                                <div class="card">
-                                    <img src="../res/img/${product.image}" class="card-img-top" alt="${product.name}">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${product.name}</h5>
-                                        <p class="card-text">${product.description}</p>
-                                        <p><strong>${product.price} &euro;</strong></p>
-                                        <button class="btn btn-primary add-to-cart" data-id="${product.id}">In den Warenkorb</button>
+                    let allProducts = data;
+
+                    function renderProducts(products) {
+                        let html = "";
+                        products.forEach(product => {
+                            html += `
+                                <div class="col-md-4 mb-4 product-card" 
+                                    data-name="${product.name.toLowerCase()}" 
+                                    data-price="${product.price}" 
+                                    draggable="true" 
+                                    data-id="${product.id}">
+                                    <div class="card">
+                                        <img src="../res/img/${product.image}" class="card-img-top" alt="${product.name}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${product.name}</h5>
+                                            <p class="card-text">${product.description}</p>
+                                            <p><strong>${product.price} &euro;</strong></p>
+                                            <button class="btn btn-primary add-to-cart" data-id="${product.id}">In den Warenkorb</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
+
+                        });
+                        $("#product-container").html(html);
+                    }
+
+                    // Первичный рендер
+                    renderProducts(allProducts);
+
+                    // Поиск
+                    $("#searchInput").on("input", function () {
+                        filterAndSearch();
                     });
-                    $("#product-container").html(html);
-                },
+
+                    // Фильтр по цене
+                    $("#priceFilter").on("change", function () {
+                        filterAndSearch();
+                    });
+
+                    function filterAndSearch() {
+                        const search = $("#searchInput").val().toLowerCase();
+                        const priceFilter = $("#priceFilter").val();
+
+                        const filtered = allProducts.filter(product => {
+                            const nameMatch = product.name.toLowerCase().includes(search);
+
+                            let priceMatch = true;
+                            if (priceFilter === "under50") {
+                                priceMatch = product.price < 50000;
+                            } else if (priceFilter === "50to100") {
+                                priceMatch = product.price >= 50000 && product.price <= 100000;
+                            } else if (priceFilter === "over100") {
+                                priceMatch = product.price > 100000;
+                            }
+
+                            return nameMatch && priceMatch;
+                        });
+
+                        renderProducts(filtered);
+                    }
+                }
+                ,
                 error: function () {
                     $("#product-container").html("<p>Produkte konnten nicht geladen werden.</p>");
                 }
@@ -87,6 +151,44 @@
                     }
                 });
             }
+            // Drag & Drop
+            $("body").on("dragstart", ".product-card", function (e) {
+                const productId = $(this).data("id");
+                e.originalEvent.dataTransfer.setData("text/plain", productId);
+            });
+
+            // Разрешаем перетаскивание на корзину
+            $("#cart-icon").on("dragover", function (e) {
+                e.preventDefault();
+                $(this).css("background-color", "#0056b3");
+            });
+
+            $("#cart-icon").on("dragleave", function () {
+                $(this).css("background-color", "#007bff");
+            });
+
+            // Обработка сброса в корзину
+            $("#cart-icon").on("drop", function (e) {
+                e.preventDefault();
+                $(this).css("background-color", "#007bff");
+
+                const productId = e.originalEvent.dataTransfer.getData("text/plain");
+
+                $.ajax({
+                    url: "../../Backend/logic/cartHandler.php",
+                    method: "POST",
+                    data: { productId: productId },
+                    dataType: "json",
+                    success: function (response) {
+                        alert(response.message);
+                        updateCartCount();
+                    },
+                    error: function () {
+                        alert("Fehler beim Hinzufügen per Drag & Drop.");
+                    }
+                });
+            });
+
 
             // Загружаем количество при старте страницы
             updateCartCount();
@@ -94,4 +196,5 @@
     </script>
 
 </body>
+
 </html>
