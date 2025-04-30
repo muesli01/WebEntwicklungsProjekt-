@@ -5,8 +5,32 @@ class User {
     private $db;
 
     public function __construct() {
-        $this->db = new DBAccess(); // Используем уже готовый класс
+        $this->db = new DBAccess();
     }
+    public function registerExtended($anrede, $vorname, $nachname, $adresse, $plz, $ort, $email, $username, $password, $zahlung) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    
+        $query = "INSERT INTO users (anrede, vorname, nachname, adresse, plz, ort, email, username, password, zahlung, rolle) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+        $params = [
+            $anrede,
+            $vorname,
+            $nachname,
+            $adresse,
+            $plz,
+            $ort,
+            $email,
+            $username,
+            $hashedPassword,
+            $zahlung,
+            'user' 
+        ];
+    
+        return $this->db->executeQuery($query, $params);
+    }
+    
+    
 
     public function register($username, $email, $password) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -16,14 +40,13 @@ class User {
 
         return $this->db->executeQuery($query, $params);
     }
-    
 
-    public function login($email, $password) {
-        session_start();
-        $query = "SELECT id, username, password FROM users WHERE email = ?";
-        $params = [$email];
+    public function login($emailOrUsername, $password) {
+        
+        $query = "SELECT id, username, password FROM users WHERE email = ? OR username = ?";
+        $params = [$emailOrUsername, $emailOrUsername];
         $result = $this->db->executeQuery($query, $params);
-
+    
         if ($row = $result->fetch_assoc()) {
             if (password_verify($password, $row['password'])) {
                 $_SESSION['user_id'] = $row['id'];
@@ -33,14 +56,13 @@ class User {
         }
         return false;
     }
+    
 
     public function isLoggedIn() {
-        session_start();
         return isset($_SESSION['user_id']);
     }
 
     public function logout() {
-        session_start();
         session_destroy();
         unset($_SESSION['user_id']);
         unset($_SESSION['username']);
