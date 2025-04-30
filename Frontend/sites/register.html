@@ -3,43 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registrierung</title>
-  <link rel="stylesheet" href="../res/css/style.css"/>
+  <title>Registrierung – Auto Webshop</title>
+  <link rel="stylesheet" href="../res/css/style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="../js/nav.js"defer></script>
 </head>
 <body>
   <div id="nav-placeholder"></div>
+  
+  <div class="container my-5">
+    <h2>Benutzerregistrierung</h2>
 
-  <h2>Benutzerregistrierung</h2>
-  <form id="registrationForm">
-    <label for="username">Benutzername:</label>
-    <input type="text" id="username" name="username" required><br>
+    <form id="registrationForm">
+      <div class="mb-3">
+        <label for="anrede" class="form-label">Anrede:</label>
+        <select id="anrede" name="anrede" class="form-select" required>
+          <option value="">Bitte wählen...</option>
+          <option value="Herr">Herr</option>
+          <option value="Frau">Frau</option>
+        </select>
+      </div>
 
-    <label for="email">E-Mail:</label>
-    <input type="email" id="email" name="email" required><br>
+      <div class="mb-3">
+        <label for="vorname" class="form-label">Vorname:</label>
+        <input type="text" id="vorname" name="vorname" class="form-control" required>
+      </div>
 
-    <label for="password">Passwort:</label>
-    <input type="password" id="password" name="password" required><br>
+      <div class="mb-3">
+        <label for="nachname" class="form-label">Nachname:</label>
+        <input type="text" id="nachname" name="nachname" class="form-control" required>
+      </div>
 
-    <button type="submit">Registrieren</button>
-  </form>
+      <div class="mb-3">
+        <label for="adresse" class="form-label">Adresse:</label>
+        <input type="text" id="adresse" name="adresse" class="form-control" required>
+      </div>
 
-  <div id="result"></div>
+      <div class="mb-3">
+        <label for="plz" class="form-label">PLZ:</label>
+        <input type="text" id="plz" name="plz" pattern="\d{4,5}" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="ort" class="form-label">Ort:</label>
+        <input type="text" id="ort" name="ort" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-Mail-Adresse:</label>
+        <input type="email" id="email" name="email" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Benutzername:</label>
+        <input type="text" id="username" name="username" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Passwort:</label>
+        <input type="password" id="password" name="password" minlength="6" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password_confirm" class="form-label">Passwort wiederholen:</label>
+        <input type="password" id="password_confirm" name="password_confirm" minlength="6" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="zahlung" class="form-label">Zahlungsinformationen:</label>
+        <input type="text" id="zahlung" name="zahlung" class="form-control" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Registrieren</button>
+    </form>
+
+    <div id="result" class="mt-3"></div>
+  </div>
 
   <script>
     $("#registrationForm").on("submit", function(e) {
       e.preventDefault();
 
+      if ($("#password").val() !== $("#password_confirm").val()) {
+        $("#result").text("Die Passwörter stimmen nicht überein!");
+        return;
+      }
+
       $.ajax({
-        url: "../../Backend/config/dataHandler.php",
+        url: "../../Backend/logic/registerHandler.php",
         type: "POST",
         data: {
-          action: "register",
-          username: $("#username").val(),
+          anrede: $("#anrede").val(),
+          vorname: $("#vorname").val(),
+          nachname: $("#nachname").val(),
+          adresse: $("#adresse").val(),
+          plz: $("#plz").val(),
+          ort: $("#ort").val(),
           email: $("#email").val(),
-          password: $("#password").val()
+          username: $("#username").val(),
+          password: $("#password").val(),
+          zahlung: $("#zahlung").val()
         },
         dataType: "json",
         success: function(response) {
@@ -51,5 +115,6 @@
       });
     });
   </script>
+
 </body>
 </html>
