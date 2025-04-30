@@ -36,14 +36,14 @@
         <div class="row" id="product-container"></div>
     </div>
 
-    <!-- Корзина иконка -->
+    <!-- Shopping cart icon -->
     <a href="warenkorb.html" id="cart-icon">
         🛒 <span id="cart-count">0</span>
     </a>
 
     <script>
         $(document).ready(function () {
-            // Загрузка товаров
+            // Loading of goods
             $.ajax({
                 url: "../../Backend/logic/productHandler.php",
                 method: "GET",
@@ -76,15 +76,15 @@
                         $("#product-container").html(html);
                     }
 
-                    // Первичный рендер
+                    // The primary render
                     renderProducts(allProducts);
 
-                    // Поиск
+                    // Search
                     $("#searchInput").on("input", function () {
                         filterAndSearch();
                     });
 
-                    // Фильтр по цене
+                    // Filter by price
                     $("#priceFilter").on("change", function () {
                         filterAndSearch();
                     });
@@ -117,7 +117,7 @@
                 }
             });
 
-            // Клик по кнопке "In den Warenkorb"
+            // Click on the "In den Warenkorb" button
             $("body").on("click", ".add-to-cart", function () {
                 const productId = $(this).data("id");
 
@@ -128,7 +128,7 @@
                     dataType: "json",
                     success: function (response) {
                         alert(response.message);
-                        updateCartCount(); // Обновляем количество в кружке после добавления
+                        updateCartCount(); // update the amount in the circle after adding it
                     },
                     error: function () {
                         alert("Fehler beim Hinzufügen zum Warenkorb.");
@@ -136,7 +136,7 @@
                 });
             });
 
-            // Функция для обновления количества товаров в корзине
+            // A function for updating the number of items in the basket
             function updateCartCount() {
                 $.ajax({
                     url: "../../Backend/logic/cartHandler.php",
@@ -157,7 +157,7 @@
                 e.originalEvent.dataTransfer.setData("text/plain", productId);
             });
 
-            // Разрешаем перетаскивание на корзину
+            // Allowing dragging to the trash
             $("#cart-icon").on("dragover", function (e) {
                 e.preventDefault();
                 $(this).css("background-color", "#0056b3");
@@ -167,7 +167,7 @@
                 $(this).css("background-color", "#007bff");
             });
 
-            // Обработка сброса в корзину
+            // Handling dumping to the trash
             $("#cart-icon").on("drop", function (e) {
                 e.preventDefault();
                 $(this).css("background-color", "#007bff");
@@ -190,7 +190,7 @@
             });
 
 
-            // Загружаем количество при старте страницы
+            // Loading the quantity at the start of the page
             updateCartCount();
         });
     </script>
