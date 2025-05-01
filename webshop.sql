@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 30 2025 г., 13:20
+-- Время создания: Апр 30 2025 г., 17:31
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -20,6 +20,28 @@ SET time_zone = "+00:00";
 --
 -- База данных: `webshop`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `orders`
+--
+
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `bestellnummer` varchar(50) NOT NULL,
+  `bestelldatum` timestamp NOT NULL DEFAULT current_timestamp(),
+  `gesamtpreis` decimal(10,2) NOT NULL,
+  `status` enum('offen','bezahlt','storniert') DEFAULT 'offen'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Дамп данных таблицы `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_id`, `bestellnummer`, `bestelldatum`, `gesamtpreis`, `status`) VALUES
+(1, 1, 'ORD1746014968', '2025-04-30 12:09:28', 58000.00, 'offen');
 
 -- --------------------------------------------------------
 
@@ -71,12 +93,19 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `anrede`, `vorname`, `nachname`, `adresse`, `plz`, `ort`, `email`, `username`, `password`, `zahlung`, `rolle`, `created_at`) VALUES
-(1, 'Herr', 'Muslim', 'Ramazanov', 'Neustiftgasse 141', '1070', 'Wien', '123@gmail.com', '123', '$2y$10$YqN1alZVjM/6t0kXWDkQ2uxJ1BdSwkhT4JWz1J23UyQBM/gfdEMHW', '123', 'user', '2025-04-30 09:41:52'),
+(1, 'Herr', '123', '123', '123', '1070', 'Wien', '123@gmail.com', '123', '$2y$10$YqN1alZVjM/6t0kXWDkQ2uxJ1BdSwkhT4JWz1J23UyQBM/gfdEMHW', '123', 'user', '2025-04-30 09:41:52'),
 (3, 'Herr', 'Admin', 'Admin', 'Adminstraße 1', '1010', 'Wien', 'admin@example.com', 'admin', '$2y$10$ADZyRVecB6cIPp/gQAjm4.xAJ2Z/ueUvzvG8iQ3wKUxcXekdyytVa', 'Rechnung', 'admin', '2025-04-30 09:46:47');
 
 --
 -- Индексы сохранённых таблиц
 --
+
+--
+-- Индексы таблицы `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Индексы таблицы `products`
@@ -97,6 +126,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT для таблицы `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT для таблицы `products`
 --
 ALTER TABLE `products`
@@ -106,7 +141,17 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- Ограничения внешнего ключа сохраненных таблиц
+--
+
+--
+-- Ограничения внешнего ключа таблицы `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

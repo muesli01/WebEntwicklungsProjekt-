@@ -31,3 +31,9 @@
 #cart-count {
     font-weight: bold;
 }
+#profile-view p {
+    font-size: 18px;
+}
+#update-message {
+    font-weight: bold;
+}
