@@ -12,5 +12,13 @@ class Product {
         $query = "SELECT * FROM products";
         return $this->db->executeQuery($query);
     }
+    public function getProductById($productId) {
+        $query = "SELECT * FROM products WHERE id = ?";
+        $params = [$productId];
+        $result = $this->db->executeQuery($query, $params);
+    
+        return $result->fetch_assoc();
+    }
+    
 }
 ?>

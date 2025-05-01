@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Mein Konto</title>
+    <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/nav.js" defer></script>
+</head>
+
+<body>
+    <div id="nav-placeholder"></div>
+    <div class="container my-5">
+        <h2>Mein Konto</h2>
+
+        <div id="profile-view" class="mt-4">
+            <!-- Hier werden die Benutzerdaten angezeigt -->
+        </div>
+
+        <button id="edit-profile-btn" class="btn btn-primary mt-3" style="display: none;">Stammdaten bearbeiten</button>
+        <button id="view-orders-btn" class="btn btn-info mt-3" style="display: none;">Meine Bestellungen</button>
+        <button id="logout-btn" class="btn btn-danger mt-3" style="display: none;">Logout</button>
+
+
+        <div id="edit-form" class="mt-4" style="display: none;">
+            <form id="profile-edit-form">
+                <div class="mb-3">
+                    <label for="vorname" class="form-label">Vorname:</label>
+                    <input type="text" id="vorname" name="vorname" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="nachname" class="form-label">Nachname:</label>
+                    <input type="text" id="nachname" name="nachname" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="adresse" class="form-label">Adresse:</label>
+                    <input type="text" id="adresse" name="adresse" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="zahlung" class="form-label">Zahlungsinformationen:</label>
+                    <input type="text" id="zahlung" name="zahlung" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="password-confirm" class="form-label">Passwort zur Bestätigung:</label>
+                    <input type="password" id="password-confirm" name="password-confirm" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">Änderungen speichern</button>
+            </form>
+        </div>
+
+        <div id="update-message" class="mt-3"></div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Überprüfung: Ist der Benutzer eingeloggt?
+            $.ajax({
+                url: "../../Backend/logic/checkLogin.php",
+                method: "GET",
+                dataType: "json",
+                success: function (response) {
+                    if (!response.loggedIn) {
+                        // Если НЕ залогинен → отправляем на login
+                        window.location.href = "login.html";
+                    } else {
+                        // Если залогинен → показываем кнопки
+                        $("#edit-profile-btn").show();
+                        $("#view-orders-btn").show();
+                        $("#logout-btn").show();
+                    }
+                },
+                error: function () {
+                    alert("Fehler beim Überprüfen des Logins.");
+                }
+            });
+            // User-Daten laden
+            $.ajax({
+                url: "../../Backend/logic/userProfileHandler.php",
+                method: "GET",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        $("#profile-view").html(`
+                    <p><strong>Anrede:</strong> ${data.user.anrede}</p>
+                    <p><strong>Vorname:</strong> ${data.user.vorname}</p>
+                    <p><strong>Nachname:</strong> ${data.user.nachname}</p>
+                    <p><strong>Adresse:</strong> ${data.user.adresse}</p>
+                    <p><strong>PLZ:</strong> ${data.user.plz}</p>
+                    <p><strong>Ort:</strong> ${data.user.ort}</p>
+                    <p><strong>E-Mail:</strong> ${data.user.email}</p>
+                    <p><strong>Benutzername:</strong> ${data.user.username}</p>
+                    <p><strong>Zahlungsinformationen:</strong> ${data.user.zahlung ? data.user.zahlung : "Nicht angegeben"}</p>
+                `);
+
+                        // Werte für Bearbeiten-Formular
+                        $("#vorname").val(data.user.vorname);
+                        $("#nachname").val(data.user.nachname);
+                        $("#adresse").val(data.user.adresse);
+                        $("#zahlung").val(data.user.zahlung);
+                    } else {
+                        $("#profile-view").html("<p>Fehler beim Laden der Benutzerdaten oder nicht eingeloggt.</p>");
+                    }
+                }
+            });
+
+            // Bearbeiten-Button klick
+            $("#edit-profile-btn").click(function () {
+                $("#edit-form").toggle();
+            });
+            // Button zum Aufrufen der Bestellseite
+            $("#view-orders-btn").click(function () {
+                window.location.href = "myOrders.html";
+            });
+            // Logout-Button
+            $("#logout-btn").click(function () {
+                $.ajax({
+                    url: "../../Backend/logic/logoutHandler.php",
+                    method: "POST",
+                    success: function () {
+                        window.location.href = "index.html";
+                    },
+                    error: function () {
+                        alert("Fehler beim Ausloggen.");
+                    }
+                });
+            });
+
+
+
+
+            // Formular absenden
+            $("#profile-edit-form").submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: "../../Backend/logic/userProfileUpdateHandler.php",
+                    method: "POST",
+                    data: {
+                        vorname: $("#vorname").val(),
+                        nachname: $("#nachname").val(),
+                        adresse: $("#adresse").val(),
+                        zahlung: $("#zahlung").val(),
+                        password_confirm: $("#password-confirm").val()
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        $("#update-message").text(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function () {
+                        $("#update-message").text("Fehler beim Aktualisieren der Daten.");
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -29,6 +29,34 @@ class User {
     
         return $this->db->executeQuery($query, $params);
     }
+    public function getUserById($userId) {
+        $query = "SELECT anrede, vorname, nachname, adresse, plz, ort, email, username, zahlung FROM users WHERE id = ?";
+        $params = [$userId];
+        $result = $this->db->executeQuery($query, $params);
+    
+        if ($row = $result->fetch_assoc()) {
+            return $row;
+        }
+        return null;
+    }
+    public function getUserFullById($userId) {
+        $query = "SELECT * FROM users WHERE id = ?";
+        $params = [$userId];
+        $result = $this->db->executeQuery($query, $params);
+    
+        if ($row = $result->fetch_assoc()) {
+            return $row;
+        }
+        return null;
+    }
+    public function updateUserProfile($userId, $vorname, $nachname, $adresse, $zahlung) {
+        $query = "UPDATE users SET vorname = ?, nachname = ?, adresse = ?, zahlung = ? WHERE id = ?";
+        $params = [$vorname, $nachname, $adresse, $zahlung, $userId];
+    
+        return $this->db->executeQuery($query, $params);
+    }
+    
+    
     
     
 
