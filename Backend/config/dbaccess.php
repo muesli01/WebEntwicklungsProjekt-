@@ -46,6 +46,10 @@ class DBAccess {
         // INSERT, UPDATE, DELETE — вернуть true
         return true;
     }
+    public function getLastInsertId() {
+        return $this->conn->insert_id;
+    }
+    
     
     
 }

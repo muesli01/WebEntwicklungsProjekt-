@@ -15,27 +15,34 @@ if (!isset($_SESSION["cart"]) || empty($_SESSION["cart"])) {
     exit;
 }
 
-// Warenkorb auslesen
-$product = new Product();
-$result = $product->getAllProducts();
+$productObj = new Product();
+$result = $productObj->getAllProducts();
 $gesamtpreis = 0;
+$items = [];
 
+// Warenkorb durchgehen
 while ($row = $result->fetch_assoc()) {
     $id = $row["id"];
     if (isset($_SESSION["cart"][$id])) {
-        $gesamtpreis += $row["price"] * $_SESSION["cart"][$id];
+        $quantity = $_SESSION["cart"][$id];
+        $preis = $row["price"];
+
+        $items[] = [
+            "product_id" => $id,
+            "quantity" => $quantity,
+            "price" => $preis
+        ];
+
+        $gesamtpreis += $preis * $quantity;
     }
 }
 
-// Bestellnummer generieren
-$bestellnummer = "ORD" . time();
-
-// Bestellung speichern
+// Bestellung erstellen
 $orderObj = new Order();
-$orderCreated = $orderObj->createOrder($_SESSION["user_id"], $bestellnummer, $gesamtpreis);
+$bestellnummer = "ORD" . time();
+$orderId = $orderObj->createOrderWithItems($_SESSION["user_id"], $bestellnummer, $gesamtpreis, $items);
 
-if ($orderCreated) {
-    // Warenkorb leeren
+if ($orderId) {
     unset($_SESSION["cart"]);
     echo json_encode(["success" => true, "message" => "Bestellung erfolgreich abgeschickt!", "bestellnummer" => $bestellnummer]);
 } else {
