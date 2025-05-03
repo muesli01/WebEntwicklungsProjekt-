@@ -4,8 +4,8 @@ header("Content-Type: application/json");
 
 require_once "../models/productClass.php";
 
-// Проверка, что пользователь залогинен и является админом
-if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "admin") {
+
+if (!isset($_SESSION["user_id"]) || $_SESSION["rolle"] !== "admin") {
     echo json_encode(["message" => "Zugriff verweigert."]);
     exit;
 }
@@ -34,6 +34,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         exit;
     }
+    // Produkt bearbeiten
+if (isset($_POST["action"]) && $_POST["action"] === "edit") {
+    $id = intval($_POST["id"]);
+    $name = $_POST["name"];
+    $description = $_POST["description"];
+    $price = floatval($_POST["price"]);
+
+    $updateImage = "";
+    if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
+        $targetDir = "../../Frontend/res/img/";
+        $fileName = basename($_FILES["image"]["name"]);
+        $targetFilePath = $targetDir . $fileName;
+
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
+            $updateImage = $fileName;
+        }
+    }
+
+    $updated = $productObj->updateProduct($id, $name, $description, $price, $updateImage);
+    if ($updated) {
+        echo json_encode(["message" => "Produkt erfolgreich aktualisiert."]);
+    } else {
+        echo json_encode(["message" => "Fehler beim Aktualisieren."]);
+    }
+    exit;
+}
+
 
     // Neues Produkt anlegen
     $name = $_POST["name"];

@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 require_once "../models/orderClass.php";
@@ -9,19 +9,29 @@ if (!isset($_SESSION["user_id"])) {
     die("Nicht eingeloggt.");
 }
 
-if (!isset($_GET["bestellnummer"])) {
-    die("Keine Bestellnummer angegeben.");
-}
-
-$bestellnummer = $_GET["bestellnummer"];
-
 $orderObj = new Order();
 $productObj = new Product();
+$order = null;
+$orderId = null;
+$bestellnummer = null;
 
-// Bestelldaten holen
-$order = $orderObj->getOrderByBestellnummer($bestellnummer);
+// Проверка: orderId или bestellnummer vorhanden?
+if (isset($_GET["orderId"])) {
+    $orderId = intval($_GET["orderId"]);
+    $order = $orderObj->getOrderById($orderId);
+} elseif (isset($_GET["bestellnummer"])) {
+    $bestellnummer = $_GET["bestellnummer"];
+    $order = $orderObj->getOrderByBestellnummer($bestellnummer);
+} else {
+    die("Keine Bestellnummer oder Order ID angegeben.");
+}
 
-if (!$order || $order["user_id"] != $_SESSION["user_id"]) {
+if (!$order) {
+    die("Bestellung nicht gefunden.");
+}
+
+// Проверка прав доступа:
+if ($_SESSION["rolle"] !== "admin" && $order["user_id"] != $_SESSION["user_id"]) {
     die("Zugriff verweigert.");
 }
 
@@ -38,7 +48,10 @@ $pdf->Ln(10);
 
 // Bestellinformationen
 $pdf->SetFont('Arial', '', 12);
-$pdf->Cell(0, 10, "Bestellnummer: " . $order["bestellnummer"], 0, 1);
+
+$angezeigteNummer = $order["bestellnummer"] ?? $order["id"];
+
+$pdf->Cell(0, 10, "Bestellnummer: " . $angezeigteNummer, 0, 1);
 $pdf->Cell(0, 10, "Datum: " . date('d.m.Y', strtotime($order["bestelldatum"])), 0, 1);
 $pdf->Ln(10);
 
@@ -56,7 +69,6 @@ foreach ($orderItems as $item) {
     if ($productDetails) {
         $y = $pdf->GetY();
         
-        // Produktbild (klein)
         $imagePath = "../../Frontend/res/img/" . $productDetails["image"];
         if (file_exists($imagePath)) {
             $pdf->Image($imagePath, $pdf->GetX(), $y, 20, 20);
@@ -81,6 +93,6 @@ $pdf->SetFont('Arial', '', 12);
 $pdf->Cell(0, 10, "Vielen Dank fuer Ihren Einkauf!", 0, 1, "C");
 
 // PDF herunterladen
-$pdf->Output('D', "Rechnung_" . $order["bestellnummer"] . ".pdf");
+$pdf->Output('D', "Rechnung_" . $angezeigteNummer . ".pdf");
 exit;
 ?>

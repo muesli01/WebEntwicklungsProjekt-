@@ -16,12 +16,13 @@ class Product
         return $this->db->executeQuery($query);
     }
     // Neues Produkt erstellen
-    public function createProduct($name, $description, $price, $image)
-    {
+    public function createProduct($name, $description, $price, $image) {
         $query = "INSERT INTO products (name, description, price, image) VALUES (?, ?, ?, ?)";
         $params = [$name, $description, $price, $image];
         return $this->execute($query, $params);
     }
+    
+    
 
     // Produkt entfernen
     public function deleteProduct($id)
@@ -49,9 +50,27 @@ class Product
     {
         $db = new DBAccess();
         $stmt = $db->executeQuery($query, $params);
-        $db->close();
         return $stmt;
     }
+    public function getProductById($productId) {
+        $query = "SELECT * FROM products WHERE id = ?";
+        $params = [$productId];
+        $result = $this->db->executeQuery($query, $params);
+    
+        return $result->fetch_assoc();
+    }
+    public function updateProduct($id, $name, $description, $price, $image = "") {
+        if ($image !== "") {
+            $query = "UPDATE products SET name = ?, description = ?, price = ?, image = ? WHERE id = ?";
+            $params = [$name, $description, $price, $image, $id];
+        } else {
+            $query = "UPDATE products SET name = ?, description = ?, price = ? WHERE id = ?";
+            $params = [$name, $description, $price, $id];
+        }
+        return $this->execute($query, $params);
+    }
+    
+    
 
 }
 ?>

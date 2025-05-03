@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Kundenverwaltung</title>
+    <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/nav.js" defer></script>
+</head>
+<body>
+
+<div id="nav-placeholder"></div>
+
+<div class="container my-5">
+    <h2 class="mb-4">Kundenverwaltung</h2>
+
+    <div id="customer-list" class="table-responsive">
+        <!-- Hier wird die Tabelle geladen -->
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    function loadCustomers() {
+        $.ajax({
+            url: "../../Backend/logic/adminCustomerHandler.php",
+            method: "GET",
+            dataType: "json",
+            success: function(customers) {
+                let html = `
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Benutzername</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                customers.forEach(customer => {
+                    html += `
+                        <tr>
+                            <td>${customer.id}</td>
+                            <td>${customer.username}</td>
+                            <td>${customer.email}</td>
+                            <td>${customer.active == 1 ? 'Aktiv' : 'Inaktiv'}</td>
+                            <td>
+                                <button class="btn btn-sm ${customer.active == 1 ? 'btn-danger' : 'btn-success'} toggle-active" data-id="${customer.id}">
+                                    ${customer.active == 1 ? 'Deaktivieren' : 'Aktivieren'}
+                                </button>
+                                <a href="adminCustomerOrders.html?userId=${customer.id}" class="btn btn-sm btn-info">Bestellungen ansehen</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+                $("#customer-list").html(html);
+            },
+            error: function() {
+                $("#customer-list").html("<p>Fehler beim Laden der Kunden.</p>");
+            }
+        });
+    }
+
+    loadCustomers();
+
+    $("body").on("click", ".toggle-active", function() {
+        const userId = $(this).data("id");
+
+        $.ajax({
+            url: "../../Backend/logic/adminCustomerHandler.php",
+            method: "POST",
+            data: { action: "toggle", id: userId },
+            dataType: "json",
+            success: function(response) {
+                alert(response.message);
+                loadCustomers();
+            },
+            error: function() {
+                alert("Fehler beim Ändern des Status.");
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>
