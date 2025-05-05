@@ -163,12 +163,40 @@ class Order
 
 
 
-    public function deleteOrderItem($itemId)
-    {
-        $query = "DELETE FROM order_items WHERE id = ?";
-        $params = [$itemId];
-        return $this->db->executeQuery($query, $params);
+public function deleteOrderItem($itemId)
+{
+    // Сначала получить order_id товара
+    $query = "SELECT order_id FROM order_items WHERE id = ?";
+    $params = [$itemId];
+    $result = $this->db->executeQuery($query, $params);
+
+    if (!$result || $result->num_rows === 0) {
+        return false;
     }
+
+    $row = $result->fetch_assoc();
+    $orderId = $row['order_id'];
+
+    // Удалить товар
+    $queryDelete = "DELETE FROM order_items WHERE id = ?";
+    $this->db->executeQuery($queryDelete, [$itemId]);
+
+    // Пересчитать сумму заказа
+    $querySum = "SELECT SUM(price * quantity) AS total FROM order_items WHERE order_id = ?";
+    $resultSum = $this->db->executeQuery($querySum, [$orderId]);
+    $newTotal = 0;
+
+    if ($resultSum && $sumRow = $resultSum->fetch_assoc()) {
+        $newTotal = $sumRow['total'];
+    }
+
+    // Обновить gesamtpreis в таблице orders
+    $queryUpdate = "UPDATE orders SET gesamtpreis = ? WHERE id = ?";
+    $this->db->executeQuery($queryUpdate, [$newTotal, $orderId]);
+
+    return true;
+}
+
 
 
 

@@ -18,12 +18,22 @@
         <h2>Meine Bestellungen</h2>
 
         <div id="orders-container" class="mt-4"></div>
+
+        <!-- Здесь будут отображаться детали выбранного заказа -->
+        <div id="order-details" class="mt-5" style="display: none;">
+            <h4>Details der Bestellung</h4>
+            <div id="details-container"></div>
+        </div>
     </div>
 
     <script>
         $(document).ready(function () {
+            loadOrders();
+        });
+
+        function loadOrders() {
             $.ajax({
-                url: "../../Backend/logic/orderListHandler.php",
+                url: "../../Backend/logic/getOrders.php",
                 method: "GET",
                 dataType: "json",
                 success: function (response) {
@@ -40,6 +50,7 @@
                                         <th>Datum</th>
                                         <th>Gesamtpreis</th>
                                         <th>Status</th>
+                                        <th>Aktionen</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -51,10 +62,12 @@
                                 <td>${new Date(order.bestelldatum).toLocaleDateString()}</td>
                                 <td>${order.gesamtpreis} &euro;</td>
                                 <td>${order.status}</td>
-                                <td><a href="../../Backend/logic/downloadInvoice.php?bestellnummer=${order.bestellnummer}" class="btn btn-sm btn-success">Rechnung herunterladen</a></td>
+                                <td>
+                                    <a href="../../Backend/logic/downloadInvoice.php?bestellnummer=${order.bestellnummer}" class="btn btn-sm btn-success mb-2">Rechnung herunterladen</a><br>
+                                    <button class="btn btn-sm btn-primary" onclick="showOrderDetails(${order.id})">Details</button>
+                                </td>
                             </tr>
                             `;
-
                         });
 
                         html += `</tbody></table>`;
@@ -67,7 +80,56 @@
                     $("#orders-container").html("<p>Fehler beim Laden der Bestellungen.</p>");
                 }
             });
-        });
+        }
+
+        function showOrderDetails(orderId) {
+            $.ajax({
+                url: "../../Backend/logic/getOrderDetails.php",
+                method: "GET",
+                data: { orderId: orderId },
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        let html = `<table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Produkt ID</th>
+                                                <th>Name</th>
+                                                <th>Preis</th>
+                                                <th>Menge</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+
+                        response.items.forEach(item => {
+                            html += `
+                                <tr>
+                                    <td>${item.product_id}</td>
+                                    <td>${item.product_name}</td>
+                                    <td>${item.price} &euro;</td>
+                                    <td>${item.quantity}</td>
+                                </tr>
+                            `;
+                        });
+
+                        html += `</tbody></table>`;
+
+                        $("#details-container").html(html);
+                        $("#order-details").show();
+                        $('html, body').animate({
+                            scrollTop: $("#order-details").offset().top
+                        }, 500);
+                    } else {
+                        $("#details-container").html(`<p>${response.message}</p>`);
+                        $("#order-details").show();
+                    }
+                },
+                error: function () {
+                    $("#details-container").html("<p>Fehler beim Laden der Bestelldetails.</p>");
+                    $("#order-details").show();
+                }
+            });
+        }
     </script>
 
 </body>
