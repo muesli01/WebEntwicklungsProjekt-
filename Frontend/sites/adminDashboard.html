@@ -1,52 +1,94 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8" />
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="../res/css/admin.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/nav.js" defer></script>
 </head>
+
 <body>
 
-<div id="nav-placeholder"></div>
+    <div id="nav-placeholder"></div>
 
-<div class="container my-5">
-    <h2 class="mb-4">Admin Dashboard</h2>
+    <div class="container my-5">
+        <h2 class="mb-4">Admin Dashboard</h2>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card text-center h-100 shadow-sm">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <h5 class="card-title">Produkte verwalten</h5>
-                    <p class="card-text">Produkte hinzufügen, bearbeiten oder löschen.</p>
-                    <a href="adminProducts.html" class="btn btn-primary mt-auto">Zur Produktverwaltung</a>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card text-center h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title">Produkte verwalten</h5>
+                        <p class="card-text">Produkte hinzufügen, bearbeiten oder löschen.</p>
+                        <a href="adminProducts.html" class="btn btn-primary mt-auto">Zur Produktverwaltung</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-center h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title">Kunden verwalten</h5>
+                        <p class="card-text">Kunden auflisten, Bestellungen einsehen, Kunden deaktivieren.</p>
+                        <a href="adminCustomers.html" class="btn btn-primary mt-auto">Zur Kundenverwaltung</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-center h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h5 class="card-title">Gutscheine verwalten</h5>
+                        <p class="card-text">Gutscheincodes erstellen, Übersicht verwalten.</p>
+                        <a href="adminCoupons.html" class="btn btn-primary mt-auto">Zur Gutscheinverwaltung</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card text-center h-100 shadow-sm">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <h5 class="card-title">Kunden verwalten</h5>
-                    <p class="card-text">Kunden auflisten, Bestellungen einsehen, Kunden deaktivieren.</p>
-                    <a href="adminCustomers.html" class="btn btn-primary mt-auto">Zur Kundenverwaltung</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-center h-100 shadow-sm">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <h5 class="card-title">Gutscheine verwalten</h5>
-                    <p class="card-text">Gutscheincodes erstellen, Übersicht verwalten.</p>
-                    <a href="adminCoupons.html" class="btn btn-primary mt-auto">Zur Gutscheinverwaltung</a>
-                </div>
-            </div>
-        </div>
     </div>
+    <script>
+        $.ajax({
+        url: "../../Backend/logic/sessionCheck.php",
+        method: "GET",
+        dataType: "json",
+        success: function (response) {
+            if (!response.loggedIn || response.rolle !== "admin") {
+                alert("Zugriff verweigert! Sie haben keine Berechtigung, diese Seite zu betreten.");
+                window.location.href = "../sites/index.html";
+            } else {
+                // Nur wenn alles OK ist — Seite anzeigen
+                $("body").show();
+            }
+        },
+        error: function () {
+            alert("Fehler bei der Überprüfung der Sitzung.");
+            window.location.href = "../sites/index.html";
+        }
+    });
+        document.addEventListener("DOMContentLoaded", function () {
 
-</div>
-
+            $.ajax({
+                url: "../../Backend/logic/sessionCheck.php",
+                method: "GET",
+                dataType: "json",
+                success: function (response) {
+                    if (!response.loggedIn || response.rolle !== "admin") {
+                        alert("Zugriff verweigert! Sie haben keine Berechtigung, diese Seite zu betreten.");
+                        window.location.href = "../sites/index.html";
+                    }
+                },
+                error: function () {
+                    alert("Fehler bei der Überprüfung der Sitzung.");
+                    window.location.href = "../sites/index.html";
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>

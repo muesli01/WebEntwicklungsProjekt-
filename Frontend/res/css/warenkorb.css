@@ -1,0 +1,102 @@
+
+
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Warenkorb-Inhalt */
+#cart-content {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    padding: 15px 0;
+}
+
+.cart-item img {
+    width: 100px;
+    height: auto;
+    border-radius: 5px;
+    margin-right: 20px;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-item-details h5 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.cart-item-details p {
+    margin: 5px 0;
+}
+
+.cart-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.cart-actions button {
+    min-width: 35px;
+}
+
+/* Gesamtpreis */
+.total-price {
+    font-size: 1.5rem;
+    text-align: right;
+    margin-top: 20px;
+}
+
+/* Bestellabschnitt */
+#order-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+#submit-order {
+    padding: 10px 30px;
+    font-size: 1.2rem;
+}
+
+/* Erfolgs-/Fehlermeldungen */
+#order-message {
+    margin-top: 20px;
+}
+
+.alert {
+    font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cart-item img {
+        width: 80px;
+        margin-bottom: 10px;
+    }
+
+    .total-price {
+        text-align: center;
+    }
+}

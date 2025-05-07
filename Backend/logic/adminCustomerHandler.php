@@ -4,7 +4,10 @@ header("Content-Type: application/json");
 
 require_once "../models/userClass.php";
 
+
+
 if (!isset($_SESSION["user_id"]) || $_SESSION["rolle"] !== "admin") {
+    http_response_code(403); // Forbidden
     echo json_encode(["message" => "Zugriff verweigert."]);
     exit;
 }

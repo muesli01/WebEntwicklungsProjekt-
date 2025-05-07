@@ -9,7 +9,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    if ($user->login($email, $password)) {
+    $userData = $user->login($email, $password);
+
+    if ($userData) {
+        $_SESSION["user_id"] = $userData["id"];
+        $_SESSION["username"] = $userData["username"];
+        $_SESSION["rolle"] = $userData["rolle"]; 
+
         echo json_encode(["success" => true, "message" => "Login erfolgreich!"]);
     } else {
         echo json_encode(["success" => false, "message" => "Login fehlgeschlagen."]);

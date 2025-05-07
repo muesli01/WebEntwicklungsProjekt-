@@ -4,6 +4,7 @@ header("Content-Type: application/json");
 
 require_once "../models/productClass.php";
 require_once "../models/orderClass.php";
+require_once "../models/couponClass.php"; // Gutscheinklasse laden
 
 if (!isset($_SESSION["user_id"])) {
     echo json_encode(["success" => false, "message" => "Nicht eingeloggt."]);
@@ -37,6 +38,34 @@ while ($row = $result->fetch_assoc()) {
     }
 }
 
+// Gutschein einlösen, falls vorhanden
+$couponCode = isset($_POST["coupon_code"]) ? trim($_POST["coupon_code"]) : null;
+$couponObj = new Coupon();
+
+if ($couponCode) {
+    $coupon = $couponObj->getCouponByCode($couponCode);
+    if ($coupon && $coupon["status"] === "aktiv" && strtotime($coupon["gueltig_bis"]) >= time()) {
+        $remainingValue = (float)$coupon["remaining_value"];
+
+        if ($remainingValue > 0) {
+            if ($remainingValue >= $gesamtpreis) {
+                // Gutschein deckt den gesamten Betrag ab
+                $newRemainingValue = $remainingValue - $gesamtpreis;
+                $gesamtpreis = 0;
+            } else {
+                // Gutschein deckt nur einen Teilbetrag ab
+                $gesamtpreis = $gesamtpreis - $remainingValue;
+                $newRemainingValue = 0;
+            }
+            // Gutschein aktualisieren
+            $couponObj->updateRemainingValue($coupon["id"], $newRemainingValue);
+        }
+    } else {
+        echo json_encode(["success" => false, "message" => "Ungültiger oder abgelaufener Gutschein."]);
+        exit;
+    }
+}
+
 // Bestellung erstellen
 $orderObj = new Order();
 $bestellnummer = "ORD" . time();
@@ -48,3 +77,4 @@ if ($orderId) {
 } else {
     echo json_encode(["success" => false, "message" => "Fehler beim Absenden der Bestellung."]);
 }
+?>

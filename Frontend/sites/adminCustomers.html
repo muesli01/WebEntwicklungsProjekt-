@@ -1,35 +1,74 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8" />
     <title>Kundenverwaltung</title>
     <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="../res/css/admin.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/nav.js" defer></script>
 </head>
+
 <body>
 
-<div id="nav-placeholder"></div>
+    <div id="nav-placeholder"></div>
 
-<div class="container my-5">
-    <h2 class="mb-4">Kundenverwaltung</h2>
+    <div class="container my-5">
+        <h2 class="mb-4">Kundenverwaltung</h2>
 
-    <div id="customer-list" class="table-responsive">
-        <!-- Hier wird die Tabelle geladen -->
+        <div id="customer-list" class="table-responsive">
+            <!-- Hier wird die Tabelle geladen -->
+        </div>
     </div>
-</div>
 
-<script>
-$(document).ready(function() {
-    function loadCustomers() {
+    <script>
         $.ajax({
-            url: "../../Backend/logic/adminCustomerHandler.php",
-            method: "GET",
-            dataType: "json",
-            success: function(customers) {
-                let html = `
+        url: "../../Backend/logic/sessionCheck.php",
+        method: "GET",
+        dataType: "json",
+        success: function (response) {
+            if (!response.loggedIn || response.rolle !== "admin") {
+                alert("Zugriff verweigert! Sie haben keine Berechtigung, diese Seite zu betreten.");
+                window.location.href = "../sites/index.html";
+            } else {
+                // Nur wenn alles OK ist — Seite anzeigen
+                $("body").show();
+            }
+        },
+        error: function () {
+            alert("Fehler bei der Überprüfung der Sitzung.");
+            window.location.href = "../sites/index.html";
+        }
+    });
+        document.addEventListener("DOMContentLoaded", function () {
+
+            $.ajax({
+                url: "../../Backend/logic/sessionCheck.php",
+                method: "GET",
+                dataType: "json",
+                success: function (response) {
+                    if (!response.loggedIn || response.rolle !== "admin") {
+                        alert("Zugriff verweigert! Sie haben keine Berechtigung, diese Seite zu betreten.");
+                        window.location.href = "../sites/index.html";
+                    }
+                },
+                error: function () {
+                    alert("Fehler bei der Überprüfung der Sitzung.");
+                    window.location.href = "../sites/index.html";
+                }
+            });
+        });
+        $(document).ready(function () {
+            function loadCustomers() {
+                $.ajax({
+                    url: "../../Backend/logic/adminCustomerHandler.php",
+                    method: "GET",
+                    dataType: "json",
+                    success: function (customers) {
+                        let html = `
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -43,8 +82,8 @@ $(document).ready(function() {
                         <tbody>
                 `;
 
-                customers.forEach(customer => {
-                    html += `
+                        customers.forEach(customer => {
+                            html += `
                         <tr>
                             <td>${customer.id}</td>
                             <td>${customer.username}</td>
@@ -58,38 +97,39 @@ $(document).ready(function() {
                             </td>
                         </tr>
                     `;
+                        });
+
+                        html += `</tbody></table>`;
+                        $("#customer-list").html(html);
+                    },
+                    error: function () {
+                        $("#customer-list").html("<p>Fehler beim Laden der Kunden.</p>");
+                    }
                 });
-
-                html += `</tbody></table>`;
-                $("#customer-list").html(html);
-            },
-            error: function() {
-                $("#customer-list").html("<p>Fehler beim Laden der Kunden.</p>");
             }
+
+            loadCustomers();
+
+            $("body").on("click", ".toggle-active", function () {
+                const userId = $(this).data("id");
+
+                $.ajax({
+                    url: "../../Backend/logic/adminCustomerHandler.php",
+                    method: "POST",
+                    data: { action: "toggle", id: userId },
+                    dataType: "json",
+                    success: function (response) {
+                        alert(response.message);
+                        loadCustomers();
+                    },
+                    error: function () {
+                        alert("Fehler beim Ändern des Status.");
+                    }
+                });
+            });
         });
-    }
-
-    loadCustomers();
-
-    $("body").on("click", ".toggle-active", function() {
-        const userId = $(this).data("id");
-
-        $.ajax({
-            url: "../../Backend/logic/adminCustomerHandler.php",
-            method: "POST",
-            data: { action: "toggle", id: userId },
-            dataType: "json",
-            success: function(response) {
-                alert(response.message);
-                loadCustomers();
-            },
-            error: function() {
-                alert("Fehler beim Ändern des Status.");
-            }
-        });
-    });
-});
-</script>
+    </script>
 
 </body>
+
 </html>

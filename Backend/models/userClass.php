@@ -73,22 +73,25 @@ class User {
         return $this->db->executeQuery($query, $params);
     }
 
-    public function login($emailOrUsername, $password) {
+    public function login($emailOrUsername, $password) { 
         $query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND active = 1";
         $params = [$emailOrUsername, $emailOrUsername];
         $result = $this->db->executeQuery($query, $params);
     
         if ($row = $result->fetch_assoc()) {
             if (password_verify($password, $row['password'])) {
-                $_SESSION['user_id'] = $row['id'];
-                $_SESSION['username'] = $row['username'];
-                $_SESSION['rolle'] = $row['rolle']; 
-                return true;
+                
+                return [
+                    "id" => $row['id'],
+                    "username" => $row['username'],
+                    "rolle" => $row['rolle']  
+                ];
             }
         }
     
         return false;
     }
+    
     
     // Alle Kunden holen
 public function getAllCustomers() {

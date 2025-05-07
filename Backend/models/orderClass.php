@@ -24,6 +24,11 @@ class Order
         $result = $this->db->executeQuery($query, $params);
 
         $orders = [];
+        if ($result === false) {
+            error_log("Database query failed: " . $this->db->getConnection()->error);
+            return [];
+        }
+
         if ($result) {
             while ($row = $result->fetch_assoc()) {
                 $orders[] = $row;

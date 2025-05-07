@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <title>Warenkorb</title>
     <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="../res/css/warenkorb.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/nav.js" defer></script>
@@ -16,71 +17,106 @@
     <div class="container mt-4">
         <h2>Ihr Warenkorb</h2>
         <div id="cart-content" class="row"></div>
+         <!-- Gutschein Abschnitt -->
+    <div id="gutschein-section" class="mt-4">
+        <h4>Gutschein einlösen</h4>
+        <div class="input-group mb-3">
+            <input type="text" id="gutschein-code" class="form-control" placeholder="Gutscheincode eingeben">
+            <button id="apply-gutschein" class="btn btn-primary">Einlösen</button>
+        </div>
+        <div id="gutschein-message"></div>
+    </div>
+        
 
-        <!-- Hier Knopf zum Abschicken -->
+        <!-- Bestell-Button -->
         <div id="order-section" class="mt-4" style="display: none;">
             <button id="submit-order" class="btn btn-success">Bestellung abschicken</button>
             <div id="order-message" class="mt-3"></div>
         </div>
     </div>
+   
+    
+
+    
 
     <script>
         $(document).ready(function () {
-            // Inhalt des Papierkorbs laden
-            $.ajax({
-                url: "../../Backend/logic/cartHandler.php",
-                method: "GET",
-                dataType: "json",
-                success: function (data) {
-                    if (data.length === 0) {
-                        $("#cart-content").html("<p>Ihr Warenkorb ist leer.</p>");
-                        return;
-                    }
-                    let html = "";
-                    let total = 0;
+            loadCart();
+            function updateTotalPrice() {
+                let total = 0;
+                $("#cart-content .cart-item").each(function () {
+                    const subtotal = parseFloat($(this).find(".subtotal").text().replace(",", "."));
+                    total += subtotal;
+                });
 
-                    data.forEach(product => {
-                        const subtotal = product.price * product.quantity;
-                        total += subtotal;
+                total -= rabatt; // Gutschein-Rabatt abziehen
+                if (total < 0) total = 0;
 
-                        html += `
-                            <div class="col-md-12 mb-3 border-bottom d-flex align-items-center">
-                                <img src="../res/img/${product.image}" alt="${product.name}" class="cart-img me-3">
-                                <div class="flex-grow-1">
-                                    <h5>${product.name}</h5>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <button class="btn btn-secondary btn-sm me-2 decrease-qty" data-id="${product.id}">-</button>
-                                        <span class="me-2">${product.quantity}</span>
-                                        <button class="btn btn-secondary btn-sm me-2 increase-qty" data-id="${product.id}">+</button>
+                $("#total-price").html(`<h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`);
+            }
+
+
+
+            function loadCart() {
+                $.ajax({
+                    url: "../../Backend/logic/cartHandler.php",
+                    method: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.length === 0) {
+                            $("#cart-content").html("<p>Ihr Warenkorb ist leer.</p>");
+                            $("#order-section").hide();
+                            return;
+                        }
+
+                        let html = "";
+                        let total = 0;
+
+                        data.forEach(product => {
+                            const subtotal = product.price * product.quantity;
+                            total += subtotal;
+
+                            html += `
+                                <div class="col-md-12 mb-3 border-bottom d-flex align-items-center">
+                                    <img src="../res/img/${product.image}" alt="${product.name}" class="cart-img me-3" style="width: 80px; height: auto;">
+                                    <div class="flex-grow-1">
+                                        <h5>${product.name}</h5>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="decrease">-</button>
+                                            <span class="me-2">${product.quantity}</span>
+                                            <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="increase">+</button>
+                                        </div>
+                                        <p>Preis: ${product.price} &euro; | Gesamt: ${subtotal.toFixed(2)} &euro;</p>
+                                        <button class="btn btn-danger btn-sm remove-from-cart" data-id="${product.id}">Entfernen</button>
                                     </div>
-                                    <p>Preis: ${product.price} &euro; | Gesamt: ${subtotal.toFixed(2)} &euro;</p>
-                                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${product.id}">Entfernen</button>
                                 </div>
-                            </div>
-                        `;
-                    });
+                            `;
+                        });
 
-                    html += `<h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`;
-                    $("#cart-content").html(html);
-                    $("#order-section").show(); //Anzeigen des Abschicken-Buttons
-                },
+                        html += `<h4 class="mt-4">Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`;
 
-                error: function () {
-                    $("#cart-content").html("<p>Fehler beim Laden des Warenkorbs.</p>");
-                }
-            });
+                        $("#cart-content").html(html);
+                        $("#order-section").show();
+                    },
+                    error: function () {
+                        $("#cart-content").html("<p>Fehler beim Laden des Warenkorbs.</p>");
+                        $("#order-section").hide();
+                    }
+                });
+            }
 
-            // die Menge Reduzieren 
-            $("body").on("click", ".decrease-qty", function () {
+            // Menge erhöhen oder verringern
+            $("body").on("click", ".change-qty", function () {
                 const productId = $(this).data("id");
+                const action = $(this).data("action");
 
                 $.ajax({
                     url: "../../Backend/logic/cartHandler.php",
                     method: "POST",
-                    data: { action: "decrease", productId: productId },
+                    data: { action: action, productId: productId },
                     dataType: "json",
                     success: function () {
-                        location.reload();
+                        loadCart();
                     },
                     error: function () {
                         alert("Fehler beim Aktualisieren der Menge.");
@@ -88,25 +124,7 @@
                 });
             });
 
-            // die Menge Erhöhen  
-            $("body").on("click", ".increase-qty", function () {
-                const productId = $(this).data("id");
-
-                $.ajax({
-                    url: "../../Backend/logic/cartHandler.php",
-                    method: "POST",
-                    data: { action: "increase", productId: productId },
-                    dataType: "json",
-                    success: function () {
-                        location.reload();
-                    },
-                    error: function () {
-                        alert("Fehler beim Aktualisieren der Menge.");
-                    }
-                });
-            });
-
-            // Artikel aus dem Warenkorb entfernen
+            // Artikel entfernen
             $("body").on("click", ".remove-from-cart", function () {
                 const productId = $(this).data("id");
 
@@ -117,13 +135,43 @@
                     dataType: "json",
                     success: function (response) {
                         alert(response.message);
-                        location.reload();
+                        loadCart();
                     },
                     error: function () {
                         alert("Fehler beim Entfernen des Produkts.");
                     }
                 });
             });
+            let rabatt = 0; // Rabatt in Euro
+
+            $("#apply-gutschein").click(function () {
+                const code = $("#gutschein-code").val().trim();
+
+                if (code === "") {
+                    $("#gutschein-message").html('<div class="alert alert-warning">Bitte Gutscheincode eingeben.</div>');
+                    return;
+                }
+
+                $.ajax({
+                    url: "../../Backend/logic/gutscheinHandler.php",
+                    method: "POST",
+                    data: { gutscheincode: code },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            rabatt = response.amount;
+                            $("#gutschein-message").html(`<div class="alert alert-success">${response.message} Rabatt: ${rabatt.toFixed(2)} €</div>`);
+                            updateTotalPrice(); // aktualisiert den Gesamtpreis
+                        } else {
+                            $("#gutschein-message").html(`<div class="alert alert-danger">${response.message}</div>`);
+                        }
+                    },
+                    error: function () {
+                        $("#gutschein-message").html('<div class="alert alert-danger">Fehler beim Einlösen des Gutscheins.</div>');
+                    }
+                });
+            });
+
 
             // Bestellung abschicken
             $("#submit-order").click(function () {
@@ -133,9 +181,14 @@
                     dataType: "json",
                     success: function (response) {
                         if (response.success) {
-                            $("#order-message").html(`<div class="alert alert-success">${response.message}<br>Bestellnummer: ${response.bestellnummer}</div>`);
+                            $("#order-message").html(`
+                                <div class="alert alert-success">
+                                    ${response.message}<br>
+                                    Bestellnummer: <strong>${response.bestellnummer}</strong>
+                                </div>
+                            `);
                             setTimeout(() => {
-                                window.location.href = "productList.html"; // zurück zur Produktliste
+                                window.location.href = "productList.html";
                             }, 3000);
                         } else {
                             $("#order-message").html(`<div class="alert alert-danger">${response.message}</div>`);
