@@ -17,16 +17,16 @@
     <div class="container mt-4">
         <h2>Ihr Warenkorb</h2>
         <div id="cart-content" class="row"></div>
-         <!-- Gutschein Abschnitt -->
-    <div id="gutschein-section" class="mt-4">
-        <h4>Gutschein einlösen</h4>
-        <div class="input-group mb-3">
-            <input type="text" id="gutschein-code" class="form-control" placeholder="Gutscheincode eingeben">
-            <button id="apply-gutschein" class="btn btn-primary">Einlösen</button>
+
+        <!-- Gutschein Abschnitt -->
+        <div id="gutschein-section" class="mt-4" style="display: none;">
+            <h4>Gutschein einlösen</h4>
+            <div class="input-group mb-3">
+                <input type="text" id="gutschein-code" class="form-control" placeholder="Gutscheincode eingeben">
+                <button id="apply-gutschein" class="btn btn-primary">Einlösen</button>
+            </div>
+            <div id="gutschein-message"></div>
         </div>
-        <div id="gutschein-message"></div>
-    </div>
-        
 
         <!-- Bestell-Button -->
         <div id="order-section" class="mt-4" style="display: none;">
@@ -34,14 +34,26 @@
             <div id="order-message" class="mt-3"></div>
         </div>
     </div>
-   
-    
-
-    
 
     <script>
         $(document).ready(function () {
+            let rabatt = 0; // Rabatt in Euro
+            let eingelösterCode = ""; // Merken des eingelösten Gutscheincodes
+
+            // Проверка залогинен ли пользователь
+            $.ajax({
+                url: "../../Backend/logic/sessionCheck.php",
+                method: "GET",
+                dataType: "json",
+                success: function (response) {
+                    if (response.loggedIn) {
+                        $("#gutschein-section").show();
+                    }
+                }
+            });
+
             loadCart();
+
             function updateTotalPrice() {
                 let total = 0;
                 $("#cart-content .cart-item").each(function () {
@@ -49,13 +61,11 @@
                     total += subtotal;
                 });
 
-                total -= rabatt; // Gutschein-Rabatt abziehen
+                total -= rabatt;
                 if (total < 0) total = 0;
 
                 $("#total-price").html(`<h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`);
             }
-
-
 
             function loadCart() {
                 $.ajax({
@@ -66,6 +76,7 @@
                         if (data.length === 0) {
                             $("#cart-content").html("<p>Ihr Warenkorb ist leer.</p>");
                             $("#order-section").hide();
+                            $("#gutschein-section").hide(); // <-- Скрыть Gutschein-Bereich если корзина пустая
                             return;
                         }
 
@@ -77,33 +88,37 @@
                             total += subtotal;
 
                             html += `
-                                <div class="col-md-12 mb-3 border-bottom d-flex align-items-center">
-                                    <img src="../res/img/${product.image}" alt="${product.name}" class="cart-img me-3" style="width: 80px; height: auto;">
-                                    <div class="flex-grow-1">
-                                        <h5>${product.name}</h5>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="decrease">-</button>
-                                            <span class="me-2">${product.quantity}</span>
-                                            <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="increase">+</button>
-                                        </div>
-                                        <p>Preis: ${product.price} &euro; | Gesamt: ${subtotal.toFixed(2)} &euro;</p>
-                                        <button class="btn btn-danger btn-sm remove-from-cart" data-id="${product.id}">Entfernen</button>
-                                    </div>
-                                </div>
-                            `;
+                    <div class="col-md-12 mb-3 border-bottom d-flex align-items-center cart-item">
+                        <img src="../res/img/${product.image}" alt="${product.name}" class="cart-img me-3" style="width: 80px; height: auto;">
+                        <div class="flex-grow-1">
+                            <h5>${product.name}</h5>
+                            <div class="d-flex align-items-center mb-2">
+                                <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="decrease">-</button>
+                                <span class="me-2">${product.quantity}</span>
+                                <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="increase">+</button>
+                            </div>
+                            <p>Preis: ${product.price} &euro; | Gesamt: <span class="subtotal">${subtotal.toFixed(2)}</span> &euro;</p>
+                            <button class="btn btn-danger btn-sm remove-from-cart" data-id="${product.id}">Entfernen</button>
+                        </div>
+                    </div>
+                `;
                         });
 
-                        html += `<h4 class="mt-4">Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`;
+                        html += `<div id="total-price" class="mt-4"><h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4></div>`;
 
                         $("#cart-content").html(html);
                         $("#order-section").show();
+                        $("#gutschein-section").show(); // <-- Показать Gutschein-Bereich если есть товары
+                        updateTotalPrice();
                     },
                     error: function () {
                         $("#cart-content").html("<p>Fehler beim Laden des Warenkorbs.</p>");
                         $("#order-section").hide();
+                        $("#gutschein-section").hide(); // <-- Скрыть Gutschein-Bereich при ошибке
                     }
                 });
             }
+
 
             // Menge erhöhen oder verringern
             $("body").on("click", ".change-qty", function () {
@@ -142,8 +157,8 @@
                     }
                 });
             });
-            let rabatt = 0; // Rabatt in Euro
 
+            // Gutschein einlösen
             $("#apply-gutschein").click(function () {
                 const code = $("#gutschein-code").val().trim();
 
@@ -160,8 +175,9 @@
                     success: function (response) {
                         if (response.success) {
                             rabatt = response.amount;
+                            eingelösterCode = code;
                             $("#gutschein-message").html(`<div class="alert alert-success">${response.message} Rabatt: ${rabatt.toFixed(2)} €</div>`);
-                            updateTotalPrice(); // aktualisiert den Gesamtpreis
+                            updateTotalPrice();
                         } else {
                             $("#gutschein-message").html(`<div class="alert alert-danger">${response.message}</div>`);
                         }
@@ -172,12 +188,15 @@
                 });
             });
 
-
             // Bestellung abschicken
             $("#submit-order").click(function () {
                 $.ajax({
                     url: "../../Backend/logic/orderHandler.php",
                     method: "POST",
+                    data: {
+                        rabatt: rabatt,
+                        gutscheincode: eingelösterCode
+                    },
                     dataType: "json",
                     success: function (response) {
                         if (response.success) {

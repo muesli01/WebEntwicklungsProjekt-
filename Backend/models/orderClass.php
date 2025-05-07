@@ -71,7 +71,7 @@ class Order
 
             // 4. Подтвердить транзакцию
             $this->db->getConnection()->commit();
-            return true;
+            return $orderId;
         } catch (Exception $e) {
             // В случае ошибки откатить транзакцию
             $this->db->getConnection()->rollback();

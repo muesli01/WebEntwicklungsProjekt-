@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 header("Content-Type: application/json");
 
@@ -39,24 +39,24 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Gutschein einlösen, falls vorhanden
-$couponCode = isset($_POST["coupon_code"]) ? trim($_POST["coupon_code"]) : null;
+$couponCode = isset($_POST["gutscheincode"]) ? strtoupper(trim($_POST["gutscheincode"])) : null;
 $couponObj = new Coupon();
 
-if ($couponCode) {
+if (!empty($couponCode)) {
     $coupon = $couponObj->getCouponByCode($couponCode);
+
     if ($coupon && $coupon["status"] === "aktiv" && strtotime($coupon["gueltig_bis"]) >= time()) {
-        $remainingValue = (float)$coupon["remaining_value"];
+        $remainingValue = (float)$coupon["wert"]; // Gutschein-Wert
 
         if ($remainingValue > 0) {
             if ($remainingValue >= $gesamtpreis) {
-                // Gutschein deckt den gesamten Betrag ab
                 $newRemainingValue = $remainingValue - $gesamtpreis;
                 $gesamtpreis = 0;
             } else {
-                // Gutschein deckt nur einen Teilbetrag ab
-                $gesamtpreis = $gesamtpreis - $remainingValue;
+                $gesamtpreis -= $remainingValue;
                 $newRemainingValue = 0;
             }
+
             // Gutschein aktualisieren
             $couponObj->updateRemainingValue($coupon["id"], $newRemainingValue);
         }
@@ -69,9 +69,9 @@ if ($couponCode) {
 // Bestellung erstellen
 $orderObj = new Order();
 $bestellnummer = "ORD" . time();
-$orderId = $orderObj->createOrderWithItems($_SESSION["user_id"], $bestellnummer, $gesamtpreis, $items);
+$orderCreated = $orderObj->createOrderWithItems($_SESSION["user_id"], $bestellnummer, $gesamtpreis, $items);
 
-if ($orderId) {
+if ($orderCreated) {
     unset($_SESSION["cart"]);
     echo json_encode(["success" => true, "message" => "Bestellung erfolgreich abgeschickt!", "bestellnummer" => $bestellnummer]);
 } else {
