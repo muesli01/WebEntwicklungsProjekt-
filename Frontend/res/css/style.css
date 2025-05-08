@@ -92,3 +92,27 @@
 }
 
 
+
+
+
+
+/* Style für den grünen Statuskreis */
+.status-circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #28a745; /* Standardgrün */
+    margin-right: 10px;
+}
+
+/* Wenn der Benutzer eingeloggt ist, den Kreis füllen */
+body.logged-in #status-circle {
+    background-color: #28a745; /* Gefüllter grüner Kreis für eingeloggte Nutzer */
+}
+
+/* Wenn der Benutzer nicht eingeloggt ist, den Kreis leer machen */
+body:not(.logged-in) #status-circle {
+    background-color: transparent;
+    border: 2px solid #28a745; /* Umriss für den Kreis */
+}
