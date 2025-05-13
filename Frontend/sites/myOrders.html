@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <title>Meine Bestellungen</title>
     <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="../res/css/myOrders.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/nav.js" defer></script>
@@ -82,6 +84,7 @@
             });
         }
 
+
         function showOrderDetails(orderId) {
             $.ajax({
                 url: "../../Backend/logic/getOrderDetails.php",
@@ -90,35 +93,75 @@
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        let html = `<table class="table table-bordered">
+                        const items = response.items;
+
+                        // Загружаем отзывы по заказу
+                        $.ajax({
+                            url: "../../Backend/logic/reviewHandler.php",
+                            method: "GET",
+                            data: { order_id: orderId },
+                            dataType: "json",
+                            success: function (reviewResponse) {
+                                let reviews = {};
+                                if (reviewResponse.success) {
+                                    reviews = reviewResponse.reviews;
+                                }
+
+                                let html = `<table class="table table-bordered">
                                         <thead>
                                             <tr>
                                                 <th>Produkt ID</th>
                                                 <th>Name</th>
                                                 <th>Preis</th>
                                                 <th>Menge</th>
+                                                <th>Bewertung</th>
                                             </tr>
                                         </thead>
                                         <tbody>`;
 
-                        response.items.forEach(item => {
-                            html += `
+                                items.forEach(item => {
+                                    const review = reviews[item.product_id];
+                                    const stars = review ? renderStars(review.rating) : '';
+                                    const comment = review && review.comment ? `<p><em>${review.comment}</em></p>` : '';
+
+                                    html += `
                                 <tr>
                                     <td>${item.product_id}</td>
                                     <td>${item.product_name}</td>
                                     <td>${item.price} &euro;</td>
                                     <td>${item.quantity}</td>
+                                    <td>
+                                        ${review ? `
+                                            <div>${stars}</div>
+                                            ${comment}
+                                        ` : `
+                                            <form onsubmit="submitReview(event, ${item.product_id}, ${orderId})">
+                                                <div class="star-rating mb-1">
+                                                    <input type="radio" name="rating" value="5" id="5-${item.product_id}"><label for="5-${item.product_id}"><i class="bi bi-star-fill"></i></label>
+                                                    <input type="radio" name="rating" value="4" id="4-${item.product_id}"><label for="4-${item.product_id}"><i class="bi bi-star-fill"></i></label>
+                                                    <input type="radio" name="rating" value="3" id="3-${item.product_id}"><label for="3-${item.product_id}"><i class="bi bi-star-fill"></i></label>
+                                                    <input type="radio" name="rating" value="2" id="2-${item.product_id}"><label for="2-${item.product_id}"><i class="bi bi-star-fill"></i></label>
+                                                    <input type="radio" name="rating" value="1" id="1-${item.product_id}"><label for="1-${item.product_id}"><i class="bi bi-star-fill"></i></label>
+                                                </div>
+                                                <input type="text" name="comment" placeholder="Kommentar (optional)" class="form-control mb-1" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Abschicken</button>
+                                            </form>
+                                            <div class="review-feedback text-success mt-2"></div>
+                                        `}
+                                    </td>
                                 </tr>
                             `;
+                                });
+
+                                html += `</tbody></table>`;
+                                $("#details-container").html(html);
+                                $("#order-details").show();
+                                $('html, body').animate({ scrollTop: $("#order-details").offset().top }, 500);
+                            },
+                            error: function () {
+                                $("#details-container").html("<p>Fehler beim Laden der Bewertungen.</p>");
+                            }
                         });
-
-                        html += `</tbody></table>`;
-
-                        $("#details-container").html(html);
-                        $("#order-details").show();
-                        $('html, body').animate({
-                            scrollTop: $("#order-details").offset().top
-                        }, 500);
                     } else {
                         $("#details-container").html(`<p>${response.message}</p>`);
                         $("#order-details").show();
@@ -130,7 +173,52 @@
                 }
             });
         }
+
+
+
+        function submitReview(event, productId, orderId) {
+            event.preventDefault();
+            const form = event.target;
+            const rating = form.rating.value;
+            const comment = form.comment.value;
+
+            $.ajax({
+                url: "../../Backend/logic/reviewHandler.php",
+                method: "POST",
+                data: {
+                    product_id: productId,
+                    order_id: orderId,
+                    rating: rating,
+                    comment: comment
+                },
+                dataType: "json",
+                success: function (response) {
+                    const feedback = $(form).siblings(".review-feedback");
+                    if (response.success) {
+                        feedback.text(response.message).removeClass("text-danger").addClass("text-success");
+                        $(form).find("button").prop("disabled", true);
+                    } else {
+                        feedback.text(response.message).removeClass("text-success").addClass("text-danger");
+                    }
+                },
+                error: function () {
+                    const feedback = $(form).siblings(".review-feedback");
+                    feedback.text("Fehler beim Senden der Bewertung.").addClass("text-danger");
+                }
+            });
+        }
     </script>
+    <script>
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="bi ${i <= rating ? 'bi-star-fill text-warning' : 'bi-star text-muted'}"></i>`;
+            }
+            return stars;
+        }
+    </script>
+
+
 
 </body>
 
