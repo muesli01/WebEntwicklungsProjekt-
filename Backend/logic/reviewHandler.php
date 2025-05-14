@@ -6,7 +6,6 @@ require_once "../models/reviewClass.php";
 
 $reviewObj = new Review();
 
-// Проверка авторизации
 if (!isset($_SESSION["user_id"])) {
     echo json_encode(["success" => false, "message" => "Nicht eingeloggt."]);
     exit;
@@ -26,13 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Проверка: пользователь уже оставлял отзыв?
     if ($reviewObj->hasUserReviewed($userId, $productId, $orderId)) {
         echo json_encode(["success" => false, "message" => "Sie haben dieses Produkt bereits bewertet."]);
         exit;
     }
 
-    // Сохраняем отзыв
     $success = $reviewObj->createReview($userId, $productId, $orderId, (int)$rating, trim($comment));
 
     if ($success) {
@@ -40,17 +37,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         echo json_encode(["success" => false, "message" => "Fehler beim Speichern der Bewertung."]);
     }
-
     exit;
 }
 
-// GET — получить отзывы по продукту
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["product_id"])) {
-    $productId = $_GET["product_id"];
-    $reviews = $reviewObj->getReviewsByProductId($productId);
-    echo json_encode(["success" => true, "reviews" => $reviews]);
+// GET — получить отзыв конкретного пользователя по товару и заказу
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["product_id"], $_GET["order_id"])) {
+    $productId = (int)$_GET["product_id"];
+    $orderId = (int)$_GET["order_id"];
+    $review = $reviewObj->getUserReview($userId, $productId, $orderId);
+    echo json_encode(["success" => true, "review" => $review]);
     exit;
 }
 
-// Неверный запрос
 echo json_encode(["success" => false, "message" => "Ungültige Anfrage."]);

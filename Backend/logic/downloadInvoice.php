@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 
 require_once "../models/orderClass.php";
@@ -68,12 +68,13 @@ foreach ($orderItems as $item) {
 
     if ($productDetails) {
         $y = $pdf->GetY();
-        
-        $imagePath = "../../Frontend/res/img/" . $productDetails["image"];
-        if (file_exists($imagePath)) {
+
+        $imagePath = realpath(__DIR__ . "/../productpictures/" . $productDetails["image"]);
+
+        if ($imagePath && file_exists($imagePath)) {
             $pdf->Image($imagePath, $pdf->GetX(), $y, 20, 20);
         }
-        
+
         $pdf->SetXY($pdf->GetX() + 25, $y);
         $pdf->Cell(70, 20, $productDetails["name"], 0, 0);
         $pdf->Cell(30, 20, $item["quantity"], 0, 0);

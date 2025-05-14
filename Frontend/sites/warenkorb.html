@@ -89,7 +89,7 @@
 
                             html += `
                     <div class="col-md-12 mb-3 border-bottom d-flex align-items-center cart-item">
-                        <img src="../res/img/${product.image}" alt="${product.name}" class="cart-img me-3" style="width: 80px; height: auto;">
+                        <img src="../../Backend/logic/getProductImage.php?file=${encodeURIComponent(product.image)}" alt="${product.name}" class="cart-img me-3" style="width: 80px; height: auto;">
                         <div class="flex-grow-1">
                             <h5>${product.name}</h5>
                             <div class="d-flex align-items-center mb-2">

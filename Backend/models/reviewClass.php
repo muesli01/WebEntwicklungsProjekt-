@@ -42,5 +42,31 @@ class Review {
 
         return $reviews;
     }
+    public function getReviewForOrderItem($productId, $orderId) {
+    $query = "SELECT rating, comment FROM product_reviews WHERE product_id = ? AND order_id = ?";
+    $params = [$productId, $orderId];
+    $result = $this->db->executeQuery($query, $params);
+
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+
+    return null;
+}
+public function getUserReview($userId, $productId, $orderId) {
+    // echo "Getting review for user=$userId, product=$productId, order=$orderId";
+    $query = "SELECT rating, comment FROM product_reviews WHERE user_id = ? AND product_id = ? AND order_id = ?";
+    $params = [$userId, $productId, $orderId];
+    $result = $this->db->executeQuery($query, $params);
+
+    if ($result && $result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+
+    return null;
+}
+
+
+
 }
 ?>
