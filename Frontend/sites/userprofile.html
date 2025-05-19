@@ -51,6 +51,24 @@
         </div>
 
         <div id="update-message" class="mt-3"></div>
+        <hr>
+        <h3>Ihre Zahlungsmethoden</h3>
+        <ul id="payment-list"></ul>
+        <button id="show-add-payment" class="btn btn-secondary my-2">Neue Zahlungsmethode hinzufügen</button>
+
+        <div id="add-payment-form" style="display:none;" class="mb-4">
+            <div class="mb-3">
+                <label for="pm-name" class="form-label">Bezeichnung:</label>
+                <input type="text" id="pm-name" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="pm-details" class="form-label">Details:</label>
+                <input type="text" id="pm-details" class="form-control">
+            </div>
+            <button id="add-payment-btn" class="btn btn-primary">Speichern</button>
+            <div id="add-payment-msg" class="mt-2"></div>
+        </div>
+
     </div>
 
     <script>
@@ -156,6 +174,54 @@
                     }
                 });
             });
+            // -- загрузка списка methods --
+            function loadUserPayments() {
+                $.ajax({
+                    url: "../../Backend/logic/getPaymentMethods.php",
+                    method: "GET",
+                    dataType: "json",
+                    success: function (res) {
+                        if (!res.success) return;
+                        let html = '';
+                        res.methods.forEach(m => {
+                            html += `<li><strong>${m.name}</strong>${m.details ? ' – ' + m.details : ''}</li>`;
+                        });
+                        $("#payment-list").html(html);
+                    }
+                });
+            }
+
+            // показать/спрятать форму
+            $("#show-add-payment").click(function () {
+                $("#add-payment-form").toggle();
+            });
+
+            // добавить новую
+            $("#add-payment-btn").click(function () {
+                const name = $("#pm-name").val().trim();
+                const details = $("#pm-details").val().trim();
+                $.ajax({
+                    url: "../../Backend/logic/addPaymentMethod.php",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ name, details }),
+                    dataType: "json",
+                    success: function (res) {
+                        $("#add-payment-msg")
+                            .text(res.message)
+                            .removeClass("text-danger text-success")
+                            .addClass(res.success ? "text-success" : "text-danger");
+                        if (res.success) {
+                            $("#pm-name,#pm-details").val('');
+                            loadUserPayments();
+                        }
+                    }
+                });
+            });
+
+            // после загрузки профиля
+            loadUserPayments();
+
         });
     </script>
 

@@ -156,8 +156,10 @@ class Order
         }
 
         $orderDetails = [];
-        while ($row = $result->fetch_assoc()) {
-            $orderDetails[] = $row;
+        if ($result && $result instanceof mysqli_result) {
+            while ($row = $result->fetch_assoc()) {
+                $orderDetails[] = $row;
+            }
         }
 
         return $orderDetails;

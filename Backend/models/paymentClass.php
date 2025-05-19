@@ -50,4 +50,12 @@ class Payment
         $stmt->bind_param("isss", $userId, $orderNumber, $method, $details);
         return $stmt->execute();
     }
+    public function addMethod(int $userId, string $name, string $details = ""): bool
+{
+    $sql = "INSERT INTO payment_methods (user_id, bestellnummer, method, details)
+            VALUES (?, '', ?, ?)";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("iss", $userId, $name, $details);
+    return $stmt->execute();
+}
 }
