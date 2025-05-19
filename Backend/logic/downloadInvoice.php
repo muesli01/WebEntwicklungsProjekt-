@@ -35,6 +35,9 @@ if ($_SESSION["rolle"] !== "admin" && $order["user_id"] != $_SESSION["user_id"])
     die("Zugriff verweigert.");
 }
 
+// Получить купон (если есть)
+$coupon = $orderObj->getCouponByOrderId($order["id"]);
+
 // Bestellte Artikel holen
 $orderItems = $orderObj->getOrderItems($order["id"]);
 
@@ -48,9 +51,7 @@ $pdf->Ln(10);
 
 // Bestellinformationen
 $pdf->SetFont('Arial', '', 12);
-
 $angezeigteNummer = $order["bestellnummer"] ?? $order["id"];
-
 $pdf->Cell(0, 10, "Bestellnummer: " . $angezeigteNummer, 0, 1);
 $pdf->Cell(0, 10, "Datum: " . date('d.m.Y', strtotime($order["bestelldatum"])), 0, 1);
 $pdf->Ln(10);
@@ -68,7 +69,6 @@ foreach ($orderItems as $item) {
 
     if ($productDetails) {
         $y = $pdf->GetY();
-
         $imagePath = realpath(__DIR__ . "/../productpictures/" . $productDetails["image"]);
 
         if ($imagePath && file_exists($imagePath)) {
@@ -88,6 +88,13 @@ $pdf->Ln(10);
 // Gesamtpreis
 $pdf->SetFont('Arial', 'B', 14);
 $pdf->Cell(0, 10, "Gesamtpreis: " . number_format($order["gesamtpreis"], 2) . " EUR", 0, 1, "R");
+
+// Купон, если был
+if ($coupon) {
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(0, 10, "Verwendeter Gutschein: " . $coupon["code"], 0, 1, "R");
+    $pdf->Cell(0, 10, "Gutscheinwert: -" . number_format($coupon["wert"], 2) . " EUR", 0, 1, "R");
+}
 
 $pdf->Ln(20);
 $pdf->SetFont('Arial', '', 12);

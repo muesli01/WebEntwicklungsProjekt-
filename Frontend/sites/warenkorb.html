@@ -18,8 +18,8 @@
         <h2>Ihr Warenkorb</h2>
         <div id="cart-content" class="row"></div>
 
-        <!-- Gutschein Abschnitt -->
-        <div id="gutschein-section" class="mt-4" style="display: none;">
+        <!-- Gutschein -->
+        <div id="gutschein-section" class="mt-4" style="display:none;">
             <h4>Gutschein einlösen</h4>
             <div class="input-group mb-3">
                 <input type="text" id="gutschein-code" class="form-control" placeholder="Gutscheincode eingeben">
@@ -28,8 +28,16 @@
             <div id="gutschein-message"></div>
         </div>
 
-        <!-- Bestell-Button -->
-        <div id="order-section" class="mt-4" style="display: none;">
+        <!-- Zahlungsmethode -->
+        <div id="payment-method-section" class="mt-4" style="display:none;">
+            <label for="payment-method-select" class="form-label">Zahlungsmethode wählen:</label>
+            <select id="payment-method-select" class="form-select">
+                <option value="">Bitte wählen</option>
+            </select>
+        </div>
+
+        <!-- Bestellen -->
+        <div id="order-section" class="mt-4" style="display:none;">
             <button id="submit-order" class="btn btn-success">Bestellung abschicken</button>
             <div id="order-message" class="mt-3"></div>
         </div>
@@ -37,35 +45,24 @@
 
     <script>
         $(document).ready(function () {
-            let rabatt = 0; // Rabatt in Euro
-            let eingelösterCode = ""; // Merken des eingelösten Gutscheincodes
+            let rabatt = 0,
+                eingelösterCode = "";
 
-            // Проверка залогинен ли пользователь
+            // 1) Проверяем, залогинен ли пользователь, и подгружаем методы
             $.ajax({
                 url: "../../Backend/logic/sessionCheck.php",
                 method: "GET",
                 dataType: "json",
-                success: function (response) {
-                    if (response.loggedIn) {
-                        $("#gutschein-section").show();
+                success: function (resp) {
+                    if (resp.loggedIn) {
+                        $("#gutschein-section, #payment-method-section").show();
+                        loadPaymentMethods();
                     }
                 }
             });
 
+            // 2) Загружаем корзину
             loadCart();
-
-            function updateTotalPrice() {
-                let total = 0;
-                $("#cart-content .cart-item").each(function () {
-                    const subtotal = parseFloat($(this).find(".subtotal").text().replace(",", "."));
-                    total += subtotal;
-                });
-
-                total -= rabatt;
-                if (total < 0) total = 0;
-
-                $("#total-price").html(`<h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4>`);
-            }
 
             function loadCart() {
                 $.ajax({
@@ -75,152 +72,133 @@
                     success: function (data) {
                         if (data.length === 0) {
                             $("#cart-content").html("<p>Ihr Warenkorb ist leer.</p>");
-                            $("#order-section").hide();
-                            $("#gutschein-section").hide(); // <-- Скрыть Gutschein-Bereich если корзина пустая
+                            $("#order-section, #gutschein-section, #payment-method-section").hide();
                             return;
                         }
-
-                        let html = "";
-                        let total = 0;
-
-                        data.forEach(product => {
-                            const subtotal = product.price * product.quantity;
-                            total += subtotal;
-
+                        let html = "", total = 0;
+                        data.forEach(p => {
+                            const sub = p.price * p.quantity;
+                            total += sub;
                             html += `
-                    <div class="col-md-12 mb-3 border-bottom d-flex align-items-center cart-item">
-                        <img src="../../Backend/logic/getProductImage.php?file=${encodeURIComponent(product.image)}" alt="${product.name}" class="cart-img me-3" style="width: 80px; height: auto;">
-                        <div class="flex-grow-1">
-                            <h5>${product.name}</h5>
-                            <div class="d-flex align-items-center mb-2">
-                                <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="decrease">-</button>
-                                <span class="me-2">${product.quantity}</span>
-                                <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${product.id}" data-action="increase">+</button>
-                            </div>
-                            <p>Preis: ${product.price} &euro; | Gesamt: <span class="subtotal">${subtotal.toFixed(2)}</span> &euro;</p>
-                            <button class="btn btn-danger btn-sm remove-from-cart" data-id="${product.id}">Entfernen</button>
-                        </div>
+                <div class="col-md-12 mb-3 border-bottom d-flex align-items-center cart-item">
+                  <img src="../../Backend/logic/getProductImage.php?file=${encodeURIComponent(p.image)}"
+                       class="cart-img me-3" style="width:80px" alt="">
+                  <div class="flex-grow-1">
+                    <h5>${p.name}</h5>
+                    <div class="d-flex mb-2">
+                      <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${p.id}" data-action="decrease">-</button>
+                      <span class="me-2">${p.quantity}</span>
+                      <button class="btn btn-secondary btn-sm me-2 change-qty" data-id="${p.id}" data-action="increase">+</button>
                     </div>
-                `;
+                    <p>Preis: ${p.price} € | Gesamt: <span class="subtotal">${sub.toFixed(2)}</span> €</p>
+                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${p.id}">Entfernen</button>
+                  </div>
+                </div>`;
                         });
-
-                        html += `<div id="total-price" class="mt-4"><h4>Gesamtpreis: ${total.toFixed(2)} &euro;</h4></div>`;
-
+                        html += `<div id="total-price" class="mt-4"><h4>Gesamtpreis: ${total.toFixed(2)} €</h4></div>`;
                         $("#cart-content").html(html);
-                        $("#order-section").show();
-                        $("#gutschein-section").show(); // <-- Показать Gutschein-Bereich если есть товары
-                        updateTotalPrice();
+                        $("#order-section, #gutschein-section, #payment-method-section").show();
                     },
                     error: function () {
                         $("#cart-content").html("<p>Fehler beim Laden des Warenkorbs.</p>");
-                        $("#order-section").hide();
-                        $("#gutschein-section").hide(); // <-- Скрыть Gutschein-Bereich при ошибке
+                        $("#order-section, #gutschein-section, #payment-method-section").hide();
                     }
                 });
             }
 
-
-            // Menge erhöhen oder verringern
-            $("body").on("click", ".change-qty", function () {
-                const productId = $(this).data("id");
-                const action = $(this).data("action");
-
+            // 3) Изменение количества и удаление
+            $("body").on("click", ".change-qty, .remove-from-cart", function () {
+                const id = $(this).data("id"),
+                    action = $(this).data("action") || "remove";
                 $.ajax({
                     url: "../../Backend/logic/cartHandler.php",
                     method: "POST",
-                    data: { action: action, productId: productId },
+                    data: { action: action, productId: id },
                     dataType: "json",
-                    success: function () {
-                        loadCart();
-                    },
-                    error: function () {
-                        alert("Fehler beim Aktualisieren der Menge.");
-                    }
+                    success: loadCart,
+                    error: () => alert("Fehler beim Aktualisieren des Warenkorbs.")
                 });
             });
 
-            // Artikel entfernen
-            $("body").on("click", ".remove-from-cart", function () {
-                const productId = $(this).data("id");
-
-                $.ajax({
-                    url: "../../Backend/logic/cartHandler.php",
-                    method: "POST",
-                    data: { action: "remove", productId: productId },
-                    dataType: "json",
-                    success: function (response) {
-                        alert(response.message);
-                        loadCart();
-                    },
-                    error: function () {
-                        alert("Fehler beim Entfernen des Produkts.");
-                    }
-                });
-            });
-
-            // Gutschein einlösen
+            // 4) Gutschein einlösen
             $("#apply-gutschein").click(function () {
                 const code = $("#gutschein-code").val().trim();
-
                 if (code === "") {
                     $("#gutschein-message").html('<div class="alert alert-warning">Bitte Gutscheincode eingeben.</div>');
                     return;
                 }
-
                 $.ajax({
                     url: "../../Backend/logic/gutscheinHandler.php",
                     method: "POST",
                     data: { gutscheincode: code },
                     dataType: "json",
-                    success: function (response) {
-                        if (response.success) {
-                            rabatt = response.amount;
+                    success: function (r) {
+                        if (r.success) {
+                            rabatt = r.amount;
                             eingelösterCode = code;
-                            $("#gutschein-message").html(`<div class="alert alert-success">${response.message} Rabatt: ${rabatt.toFixed(2)} €</div>`);
-                            updateTotalPrice();
+                            $("#gutschein-message").html(`<div class="alert alert-success">${r.message} Rabatt: ${rabatt.toFixed(2)} €</div>`);
+                            const originalTotal = parseFloat($("#total-price h4").text().replace(/[^\d.,]/g, '').replace(',', '.'));
+                            const newTotal = Math.max(0, originalTotal - rabatt);
+                            $("#total-price h4").html(`Gesamtpreis: ${newTotal.toFixed(2)} €`);
+
+                            updateTotalPrice();  // ← добавляем пересчёт здесь
                         } else {
-                            $("#gutschein-message").html(`<div class="alert alert-danger">${response.message}</div>`);
+                            $("#gutschein-message").html(`<div class="alert alert-danger">${r.message}</div>`);
                         }
                     },
-                    error: function () {
-                        $("#gutschein-message").html('<div class="alert alert-danger">Fehler beim Einlösen des Gutscheins.</div>');
-                    }
+
+                    error: () => $("#gutschein-message").html('<div class="alert alert-danger">Einlösefehler.</div>')
                 });
             });
 
-            // Bestellung abschicken
+            // 5) Bestellung abschicken
             $("#submit-order").click(function () {
+                const pm = $("#payment-method-select").val();
+                if (pm === "") {
+                    $("#order-message").html('<div class="alert alert-warning">Bitte wählen Sie eine Zahlungsmethode.</div>');
+                    return;
+                }
                 $.ajax({
                     url: "../../Backend/logic/orderHandler.php",
                     method: "POST",
                     data: {
                         rabatt: rabatt,
-                        gutscheincode: eingelösterCode
+                        gutscheincode: eingelösterCode,
+                        paymentMethodId: pm
                     },
                     dataType: "json",
-                    success: function (response) {
-                        if (response.success) {
-                            $("#order-message").html(`
-                                <div class="alert alert-success">
-                                    ${response.message}<br>
-                                    Bestellnummer: <strong>${response.bestellnummer}</strong>
-                                </div>
-                            `);
-                            setTimeout(() => {
-                                window.location.href = "productList.html";
-                            }, 3000);
+                    success: function (r) {
+                        if (r.success) {
+                            $("#order-message").html(`<div class="alert alert-success">${r.message}<br>Bestellnummer: <strong>${r.bestellnummer}</strong></div>`);
+                            setTimeout(() => location.href = "productList.html", 3000);
                         } else {
-                            $("#order-message").html(`<div class="alert alert-danger">${response.message}</div>`);
+                            $("#order-message").html(`<div class="alert alert-danger">${r.message}</div>`);
                         }
                     },
-                    error: function () {
-                        $("#order-message").html(`<div class="alert alert-danger">Fehler beim Abschicken der Bestellung.</div>`);
-                    }
+                    error: () => $("#order-message").html('<div class="alert alert-danger">Fehler beim Abschicken der Bestellung.</div>')
                 });
             });
+
+            // 6) Загрузка способов оплаты
+            function loadPaymentMethods() {
+                $.ajax({
+                    url: "../../Backend/logic/getPaymentMethods.php",
+                    method: "GET",
+                    dataType: "json",
+                    success: function (resp) {
+                        if (resp.success) {
+                            let opts = '<option value="">Bitte wählen</option>';
+                            resp.methods.forEach(m => {
+                                opts += `<option value="${m.id}">${m.name}${m.details ? " – " + m.details : ""}</option>`;
+                            });
+                            $("#payment-method-select").html(opts);
+                        }
+                    },
+                    error: () => alert("Fehler beim Laden der Zahlungsmethoden")
+                });
+            }
         });
     </script>
-
 </body>
 
 </html>
