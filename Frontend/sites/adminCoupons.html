@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gutscheine verwalten</title>
+    <link rel="stylesheet" href="../res/css/style.css" />
+    <link rel="stylesheet" href="../res/css/admin.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/nav.js" defer></script>
+    <script src="../js/adminCoupons.js" defer></script>
+</head>
+
+<body>
+    <div id="nav-placeholder"></div>
+
+    <div class="container my-5">
+        <h2 class="mb-4">Gutscheine verwalten</h2>
+
+        <!-- Neues Gutschein Formular -->
+        <form id="new-coupon-form" class="mb-5">
+            <h4>Neuen Gutschein erstellen</h4>
+
+            <div class="mb-3">
+                <label for="wert" class="form-label">Wert (€)</label>
+                <input type="number" step="0.01" id="wert" name="wert" class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="gueltig_bis" class="form-label">Gültig bis</label>
+                <input type="date" id="gueltig_bis" name="gueltig_bis" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-success">Gutschein erstellen</button>
+        </form>
+
+        <!-- Liste aller Gutscheine -->
+        <h4>Alle Gutscheine</h4>
+        <div id="coupon-list"></div>
+    </div>
+
+    
+
+</body>
+
+</html>

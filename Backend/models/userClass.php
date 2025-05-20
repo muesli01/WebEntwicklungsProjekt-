@@ -3,9 +3,13 @@ require_once(__DIR__ . '/../config/dbaccess.php');
 
 class User {
     private $db;
+    public $id;
+    public $email;
 
-    public function __construct() {
+    public function __construct($id = null, $email = null) {
         $this->db = new DBAccess();
+        $this->id = $id;
+        $this->email = $email;
     }
     public function registerExtended($anrede, $vorname, $nachname, $adresse, $plz, $ort, $email, $username, $password, $zahlung) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -69,21 +73,59 @@ class User {
         return $this->db->executeQuery($query, $params);
     }
 
-    public function login($emailOrUsername, $password) {
-        
-        $query = "SELECT id, username, password FROM users WHERE email = ? OR username = ?";
+    public function login($emailOrUsername, $password) { 
+        $query = "SELECT * FROM users WHERE (email = ? OR username = ?) AND active = 1";
         $params = [$emailOrUsername, $emailOrUsername];
         $result = $this->db->executeQuery($query, $params);
     
         if ($row = $result->fetch_assoc()) {
             if (password_verify($password, $row['password'])) {
-                $_SESSION['user_id'] = $row['id'];
-                $_SESSION['username'] = $row['username'];
-                return true;
+                
+                return [
+                    "id" => $row['id'],
+                    "username" => $row['username'],
+                    "rolle" => $row['rolle']  
+                ];
             }
         }
+    
         return false;
     }
+    
+    
+    // Alle Kunden holen
+public function getAllCustomers() {
+    $query = "SELECT id, username, email, active FROM users WHERE rolle = 'user'";
+    $result = $this->db->executeQuery($query);
+    $customers = [];
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $customers[] = $row;
+        }
+    }
+
+    return $customers;
+}
+
+// Kundenstatus aktiv/inaktiv umschalten
+public function toggleCustomerActive($id) {
+    // Zuerst den aktuellen Status holen
+    $query = "SELECT active FROM users WHERE id = ?";
+    $params = [$id];
+    $result = $this->db->executeQuery($query, $params);
+
+    if ($row = $result->fetch_assoc()) {
+        $newStatus = $row['active'] == 1 ? 0 : 1;
+        $updateQuery = "UPDATE users SET active = ? WHERE id = ?";
+        $updateParams = [$newStatus, $id];
+        return $this->db->executeQuery($updateQuery, $updateParams);
+    }
+
+    return false;
+}
+
+    
     
 
     public function isLoggedIn() {

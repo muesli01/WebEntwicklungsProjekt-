@@ -1,4 +1,3 @@
-
 .cart-img {
     width: 100px;
     height: auto;
@@ -36,4 +35,84 @@
 }
 #update-message {
     font-weight: bold;
+}
+.card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    object-position: center center;
+}
+
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 1rem;
+}
+
+.card .btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+    }
+
+    .card .btn {
+        font-size: 0.95rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+
+@media (min-width: 1200px) {
+    .card-title {
+        font-size: 1.4rem;
+    }
+
+    .card-text {
+        font-size: 1.1rem;
+    }
+
+    .card .btn {
+        font-size: 1.05rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+
+
+
+
+
+
+/* Style für den grünen Statuskreis */
+.status-circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #28a745; /* Standardgrün */
+    margin-right: 10px;
+}
+
+/* Wenn der Benutzer eingeloggt ist, den Kreis füllen */
+body.logged-in #status-circle {
+    background-color: #28a745; /* Gefüllter grüner Kreis für eingeloggte Nutzer */
+}
+
+/* Wenn der Benutzer nicht eingeloggt ist, den Kreis leer machen */
+body:not(.logged-in) #status-circle {
+    background-color: transparent;
+    border: 2px solid #28a745; /* Umriss für den Kreis */
 }
