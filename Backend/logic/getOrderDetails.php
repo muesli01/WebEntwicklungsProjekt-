@@ -1,15 +1,16 @@
 <?php
 session_start();
-require_once '../config/dbaccess.php'; // Подключение к базе
+require_once '../config/dbaccess.php'; // DB-Verbindung
 
 header('Content-Type: application/json');
 
-// Проверка авторизации
+// Prüfen, ob Nutzer eingeloggt ist
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Nicht angemeldet.']);
     exit;
 }
 
+// Prüfen, ob orderId übergeben wurde
 if (!isset($_GET['orderId'])) {
     echo json_encode(['success' => false, 'message' => 'Keine Bestell-ID angegeben.']);
     exit;
@@ -25,7 +26,7 @@ if ($db->connect_error) {
     exit;
 }
 
-// Проверить принадлежит ли заказ пользователю
+// Prüfen, ob Bestellung zum Nutzer gehört
 $queryCheck = "SELECT id FROM orders WHERE id = ? AND user_id = ?";
 $stmtCheck = $db->prepare($queryCheck);
 $stmtCheck->bind_param('ii', $orderId, $userId);
@@ -37,7 +38,7 @@ if ($resultCheck->num_rows === 0) {
     exit;
 }
 
-// Получить товары заказа
+// Bestellpositionen mit Produktdetails abrufen
 $query = "SELECT oi.product_id, p.name AS product_name, oi.price, oi.quantity
           FROM order_items oi
           JOIN products p ON oi.product_id = p.id

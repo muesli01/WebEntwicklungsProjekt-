@@ -1,10 +1,10 @@
 <?php
 session_start();
-require_once '../config/dbaccess.php'; // Подключение к базе
+require_once '../config/dbaccess.php'; // DB-Verbindung
 
 header('Content-Type: application/json');
 
-// Проверка авторизации
+// Prüfen, ob Nutzer eingeloggt ist
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Nicht angemeldet.']);
     exit;
@@ -19,7 +19,7 @@ if ($db->connect_error) {
     exit;
 }
 
-// Получить все заказы пользователя
+// Alle Bestellungen des Nutzers abrufen
 $query = "SELECT id, bestellnummer, bestelldatum, gesamtpreis, status FROM orders WHERE user_id = ? ORDER BY bestelldatum DESC";
 $stmt = $db->prepare($query);
 $stmt->bind_param('i', $userId);

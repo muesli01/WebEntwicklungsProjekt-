@@ -4,6 +4,7 @@ header("Content-Type: application/json");
 
 require_once "../models/productClass.php";
 
+// Nur Admins dürfen
 if (!isset($_SESSION["user_id"]) || $_SESSION["rolle"] !== "admin") {
     echo json_encode(["message" => "Zugriff verweigert."]);
     exit;
@@ -18,11 +19,10 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     exit;
 }
 
-// Hilfsfunktion zum sicheren Hochladen von Bildern
+// Bild-Upload sicher behandeln
 function handleImageUpload($file) {
     $uploadDir = realpath(__DIR__ . "/../productpictures");
 
-    // Если папка не существует — создаём
     if (!$uploadDir) {
         $uploadDir = __DIR__ . "/../productpictures";
         if (!is_dir($uploadDir)) {
@@ -36,14 +36,13 @@ function handleImageUpload($file) {
     if (move_uploaded_file($file["tmp_name"], $targetFilePath)) {
         return $fileName;
     }
-
     return false;
 }
 
-// POST: Neues Produkt erstellen oder bearbeiten oder löschen
+// POST: Produkt löschen, bearbeiten oder neu anlegen
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Produkt löschen
+    // Löschen
     if (isset($_POST["action"]) && $_POST["action"] === "delete") {
         $id = intval($_POST["id"]);
         $deleted = $productObj->deleteProduct($id);
@@ -54,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Produkt bearbeiten
+    // Bearbeiten
     if (isset($_POST["action"]) && $_POST["action"] === "edit") {
         $id = intval($_POST["id"]);
         $name = $_POST["name"];
@@ -76,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Neues Produkt anlegen
+    // Neu anlegen
     $name = $_POST["name"];
     $description = $_POST["description"];
     $price = floatval($_POST["price"]);
@@ -101,3 +100,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Ungültige Anfrage
 echo json_encode(["message" => "Ungültige Anfrage."]);
+?>

@@ -4,7 +4,7 @@ header("Content-Type: application/json");
 
 require_once "../models/productClass.php";
 
-// GET: Получить содержимое корзины
+// GET: Warenkorb-Inhalt zurückgeben
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     if (!isset($_SESSION["cart"]) || empty($_SESSION["cart"])) {
         echo json_encode([]);
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     exit;
 }
 
-// POST: Удаление товара из корзины
+// POST: Produkt aus Warenkorb entfernen
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "remove") {
     $productId = $_POST["productId"];
 
@@ -40,7 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     }
     exit;
 }
-// POST: Увеличение количества товара
+
+// POST: Menge eines Produkts erhöhen
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "increase") {
     $productId = $_POST["productId"];
 
@@ -53,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     exit;
 }
 
-// POST: Уменьшение количества товара
+// POST: Menge eines Produkts verringern oder entfernen, wenn Menge 0 wird
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "decrease") {
     $productId = $_POST["productId"];
 
@@ -61,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         $_SESSION["cart"][$productId]--;
         echo json_encode(["message" => "Menge verringert."]);
     } elseif (isset($_SESSION["cart"][$productId])) {
-        unset($_SESSION["cart"][$productId]); // Если количество стало 0 — удаляем товар
+        unset($_SESSION["cart"][$productId]);
         echo json_encode(["message" => "Produkt entfernt."]);
     } else {
         echo json_encode(["message" => "Produkt nicht gefunden."]);
@@ -69,8 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     exit;
 }
 
-
-// POST: Добавление товара в корзину
+// POST: Produkt zum Warenkorb hinzufügen
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $productId = $_POST["productId"];
 
@@ -88,5 +88,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 
-// Неверный запрос
+// Ungültige Anfrage
 echo json_encode(["error" => "Ungültige Anfrage."]);

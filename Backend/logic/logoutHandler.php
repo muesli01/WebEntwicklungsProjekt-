@@ -2,7 +2,7 @@
 session_start();
 require_once "../config/dbaccess.php";
 
-// Удаление remember_token из БД, если установлен
+// Entfernen des remember_token aus der Datenbank, falls gesetzt
 if (isset($_SESSION["user_id"])) {
     $db = new DBAccess();
     $conn = $db->getConnection();
@@ -12,14 +12,14 @@ if (isset($_SESSION["user_id"])) {
     $stmt->execute();
 }
 
-// Удалить cookie
+// Cookie löschen
 setcookie("remember_token", "", time() - 3600, "/");
 
-// Завершение сессии
+// Session beenden
 session_unset();
 session_destroy();
 
-// Перенаправление
+// Weiterleitung zur Login-Seite
 header("Location: ../../Frontend/sites/login.html");
 exit();
 ?>

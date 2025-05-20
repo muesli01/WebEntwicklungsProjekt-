@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/nav.js" defer></script>
+    <script src="../js/adminDashboard.js" defer></script>
 </head>
 
 <body>
@@ -51,44 +52,7 @@
         </div>
 
     </div>
-    <script>
-        $.ajax({
-        url: "../../Backend/logic/sessionCheck.php",
-        method: "GET",
-        dataType: "json",
-        success: function (response) {
-            if (!response.loggedIn || response.rolle !== "admin") {
-                alert("Zugriff verweigert! Sie haben keine Berechtigung, diese Seite zu betreten.");
-                window.location.href = "../sites/index.html";
-            } else {
-                // Nur wenn alles OK ist — Seite anzeigen
-                $("body").show();
-            }
-        },
-        error: function () {
-            alert("Fehler bei der Überprüfung der Sitzung.");
-            window.location.href = "../sites/index.html";
-        }
-    });
-        document.addEventListener("DOMContentLoaded", function () {
-
-            $.ajax({
-                url: "../../Backend/logic/sessionCheck.php",
-                method: "GET",
-                dataType: "json",
-                success: function (response) {
-                    if (!response.loggedIn || response.rolle !== "admin") {
-                        alert("Zugriff verweigert! Sie haben keine Berechtigung, diese Seite zu betreten.");
-                        window.location.href = "../sites/index.html";
-                    }
-                },
-                error: function () {
-                    alert("Fehler bei der Überprüfung der Sitzung.");
-                    window.location.href = "../sites/index.html";
-                }
-            });
-        });
-    </script>
+    
 </body>
 
 </html>

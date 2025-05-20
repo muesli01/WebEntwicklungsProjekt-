@@ -3,10 +3,12 @@ header("Content-Type: application/json");
 require_once "../models/productClass.php";
 
 $product = new Product();
+// Alle Produkte aus der Datenbank abrufen
 $result = $product->getAllProducts();
 
 $products = [];
 
+// Ergebnisse durchgehen und in ein Array speichern
 while ($row = $result->fetch_assoc()) {
     $products[] = [
         "id" => $row["id"],
@@ -17,4 +19,5 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
+// Produkte als JSON ausgeben
 echo json_encode($products);

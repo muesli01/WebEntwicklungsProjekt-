@@ -4,6 +4,7 @@ header("Content-Type: application/json");
 
 require_once "../models/orderClass.php";
 
+// Nur Admins dürfen
 if (!isset($_SESSION["user_id"]) || $_SESSION["rolle"] !== "admin") {
     echo json_encode(["error" => "Zugriff verweigert."]);
     exit;
@@ -25,5 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     exit;
 }
 
+// Ungültige Anfrage
 echo json_encode(["error" => "Ungültige Anfrage."]);
 ?>

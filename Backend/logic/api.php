@@ -12,13 +12,13 @@ $dataHandler = new DataHandler();
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-   
+    // Alle Nutzer holen
     $users = $dataHandler->getUsers();
     echo json_encode($users);
 }
 
 elseif ($method === 'POST') {
-    
+    // Neuen Nutzer anlegen
     $inputData = json_decode(file_get_contents("php://input"), true);
 
     if (isset($inputData["email"]) && isset($inputData["password"])) {
@@ -31,6 +31,7 @@ elseif ($method === 'POST') {
 }
 
 else {
+    // Andere HTTP-Methoden nicht erlaubt
     echo json_encode(["error" => "Method not allowed"]);
 }
 ?>
