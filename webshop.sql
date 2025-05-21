@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Хост: 127.0.0.1
--- Время создания: Май 20 2025 г., 21:53
--- Версия сервера: 10.4.32-MariaDB
--- Версия PHP: 8.2.12
+-- Host: 127.0.0.1
+-- Erstellungszeit: Mai 21 2025, 23:46
+-- Server-Version: 10.4.32-MariaDB
+-- PHP-Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `webshop`
+-- Datenbank: `webshop
 --
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `coupons`
+-- Tabellenstruktur für Tabelle `coupons`
 --
 
 CREATE TABLE `coupons` (
@@ -37,7 +37,7 @@ CREATE TABLE `coupons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `coupons`
+-- Daten für Tabelle `coupons`
 --
 
 INSERT INTO `coupons` (`id`, `code`, `wert`, `gueltig_bis`, `status`, `remaining_value`) VALUES
@@ -57,7 +57,7 @@ INSERT INTO `coupons` (`id`, `code`, `wert`, `gueltig_bis`, `status`, `remaining
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `orders`
+-- Tabellenstruktur für Tabelle `orders`
 --
 
 CREATE TABLE `orders` (
@@ -71,7 +71,7 @@ CREATE TABLE `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `orders`
+-- Daten für Tabelle `orders`
 --
 
 INSERT INTO `orders` (`id`, `user_id`, `bestellnummer`, `bestelldatum`, `gesamtpreis`, `status`, `coupon_id`) VALUES
@@ -101,7 +101,7 @@ INSERT INTO `orders` (`id`, `user_id`, `bestellnummer`, `bestelldatum`, `gesamtp
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `order_items`
+-- Tabellenstruktur für Tabelle `order_items`
 --
 
 CREATE TABLE `order_items` (
@@ -113,7 +113,7 @@ CREATE TABLE `order_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `order_items`
+-- Daten für Tabelle `order_items`
 --
 
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
@@ -145,7 +145,7 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `payment_methods`
+-- Tabellenstruktur für Tabelle `payment_methods`
 --
 
 CREATE TABLE `payment_methods` (
@@ -158,7 +158,7 @@ CREATE TABLE `payment_methods` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `payment_methods`
+-- Daten für Tabelle `payment_methods`
 --
 
 INSERT INTO `payment_methods` (`id`, `user_id`, `bestellnummer`, `method`, `details`, `created_at`) VALUES
@@ -179,7 +179,7 @@ INSERT INTO `payment_methods` (`id`, `user_id`, `bestellnummer`, `method`, `deta
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `products`
+-- Tabellenstruktur für Tabelle `products`
 --
 
 CREATE TABLE `products` (
@@ -191,7 +191,7 @@ CREATE TABLE `products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `products`
+-- Daten für Tabelle `products`
 --
 
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `image`) VALUES
@@ -202,7 +202,7 @@ INSERT INTO `products` (`id`, `name`, `description`, `price`, `image`) VALUES
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `product_reviews`
+-- Tabellenstruktur für Tabelle `product_reviews`
 --
 
 CREATE TABLE `product_reviews` (
@@ -216,7 +216,7 @@ CREATE TABLE `product_reviews` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `product_reviews`
+-- Daten für Tabelle `product_reviews`
 --
 
 INSERT INTO `product_reviews` (`id`, `user_id`, `product_id`, `order_id`, `rating`, `comment`, `created_at`) VALUES
@@ -231,7 +231,7 @@ INSERT INTO `product_reviews` (`id`, `user_id`, `product_id`, `order_id`, `ratin
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `users`
+-- Tabellenstruktur für Tabelle `users`
 --
 
 CREATE TABLE `users` (
@@ -253,7 +253,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Дамп данных таблицы `users`
+-- Daten für Tabelle `users`
 --
 
 INSERT INTO `users` (`id`, `anrede`, `vorname`, `nachname`, `adresse`, `plz`, `ort`, `email`, `username`, `password`, `zahlung`, `rolle`, `created_at`, `active`, `remember_token`) VALUES
@@ -262,18 +262,18 @@ INSERT INTO `users` (`id`, `anrede`, `vorname`, `nachname`, `adresse`, `plz`, `o
 (5, 'Herr', '111', '111', '111', '1111', '111', '1111@gmail.com', '111', '$2y$10$HeKszDYs4acEzL9msjNrIex/8H98UlUtgExrwpvgQlkLxYZjRuceW', '111', 'user', '2025-05-03 19:05:19', 1, NULL);
 
 --
--- Индексы сохранённых таблиц
+-- Indizes der gespeicherten Tabellen
 --
 
 --
--- Индексы таблицы `coupons`
+-- Indizes der Tabelle `coupons`
 --
 ALTER TABLE `coupons`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `code` (`code`);
 
 --
--- Индексы таблицы `orders`
+-- Indizes der Tabelle `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`),
@@ -282,7 +282,8 @@ ALTER TABLE `orders`
   ADD KEY `coupon_id` (`coupon_id`);
 
 --
--- Индексы таблицы `order_items`
+
+-- Indizes der Tabelle `order_items`
 --
 ALTER TABLE `order_items`
   ADD PRIMARY KEY (`id`),
@@ -290,20 +291,20 @@ ALTER TABLE `order_items`
   ADD KEY `product_id` (`product_id`);
 
 --
--- Индексы таблицы `payment_methods`
+-- Indizes der Tabelle `payment_methods`
 --
 ALTER TABLE `payment_methods`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Индексы таблицы `products`
+-- Indizes der Tabelle `products`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`id`);
 
 --
--- Индексы таблицы `product_reviews`
+-- Indizes der Tabelle `product_reviews`
 --
 ALTER TABLE `product_reviews`
   ADD PRIMARY KEY (`id`),
@@ -312,7 +313,7 @@ ALTER TABLE `product_reviews`
   ADD KEY `fk_reviews_order` (`order_id`);
 
 --
--- Индексы таблицы `users`
+-- Indizes der Tabelle `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
@@ -320,77 +321,78 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- AUTO_INCREMENT для сохранённых таблиц
+-- AUTO_INCREMENT-Werte für gespeicherte Tabellen
 --
 
 --
--- AUTO_INCREMENT для таблицы `coupons`
+-- AUTO_INCREMENT für Tabelle `coupons`
 --
 ALTER TABLE `coupons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
--- AUTO_INCREMENT для таблицы `orders`
+-- AUTO_INCREMENT für Tabelle `orders`
 --
 ALTER TABLE `orders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
--- AUTO_INCREMENT для таблицы `order_items`
+-- AUTO_INCREMENT für Tabelle `order_items`
 --
 ALTER TABLE `order_items`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
--- AUTO_INCREMENT для таблицы `payment_methods`
+-- AUTO_INCREMENT für Tabelle `payment_methods`
 --
 ALTER TABLE `payment_methods`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT для таблицы `products`
+
+-- AUTO_INCREMENT für Tabelle `products`
 --
 ALTER TABLE `products`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT для таблицы `product_reviews`
+-- AUTO_INCREMENT für Tabelle `product_reviews`
 --
 ALTER TABLE `product_reviews`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT для таблицы `users`
+-- AUTO_INCREMENT für Tabelle `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- Ограничения внешнего ключа сохраненных таблиц
+-- Fremdschlüsselbeschränkungen der gespeicherten Tabellen
 --
 
 --
--- Ограничения внешнего ключа таблицы `orders`
+
+-- Fremdschlüsselbeschränkungen der Tabelle `orders`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`) ON DELETE SET NULL;
 
 --
--- Ограничения внешнего ключа таблицы `order_items`
+-- Fremdschlüsselbeschränkungen der Tabelle `order_items`
 --
 ALTER TABLE `order_items`
   ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
---
--- Ограничения внешнего ключа таблицы `payment_methods`
+-- Fremdschlüsselbeschränkungen der Tabelle `payment_methods`
 --
 ALTER TABLE `payment_methods`
   ADD CONSTRAINT `payment_methods_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
--- Ограничения внешнего ключа таблицы `product_reviews`
+-- Fremdschlüsselbeschränkungen der Tabelle `product_reviews`
 --
 ALTER TABLE `product_reviews`
   ADD CONSTRAINT `fk_reviews_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
