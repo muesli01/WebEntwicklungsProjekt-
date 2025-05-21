@@ -7,13 +7,14 @@ class Payment
 
     public function __construct()
     {
-        // Получаем чистое mysqli-соединение из твоего DBAccess
+        // Hole die reine mysqli-Verbindung aus DBAccess
         $db = new DBAccess();
         $this->conn = $db->getConnection();
     }
 
     /**
-     * Получить все доступные сохранённые способы оплаты для пользователя
+     * Gibt alle gespeicherten Zahlungsmethoden eines Benutzers zurück
+     * (Nur solche, die nicht mit einer konkreten Bestellung verknüpft sind)
      */
     public function getSavedMethods($userId)
     {
@@ -21,7 +22,7 @@ class Payment
                   FROM payment_methods 
                  WHERE user_id = ? 
                    AND bestellnummer = ''"; 
-        // считаем, что для сохранённых методов bestellnummer = ''
+        // Gespeicherte Zahlungsmethoden haben eine leere bestellnummer
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $userId);
         $stmt->execute();
@@ -39,8 +40,7 @@ class Payment
     }
 
     /**
-     * Сохранить способ оплаты для конкретного заказа
-     * (это и есть savePayment, убираем старую путаницу с payments)
+     * Speichert eine Zahlungsmethode für eine bestimmte Bestellung
      */
     public function savePayment($userId, $orderNumber, $method, $details = "")
     {
@@ -50,12 +50,16 @@ class Payment
         $stmt->bind_param("isss", $userId, $orderNumber, $method, $details);
         return $stmt->execute();
     }
+
+    /**
+     * Fügt eine neue gespeicherte Zahlungsmethode für den Benutzer hinzu
+     */
     public function addMethod(int $userId, string $name, string $details = ""): bool
-{
-    $sql = "INSERT INTO payment_methods (user_id, bestellnummer, method, details)
-            VALUES (?, '', ?, ?)";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("iss", $userId, $name, $details);
-    return $stmt->execute();
-}
+    {
+        $sql = "INSERT INTO payment_methods (user_id, bestellnummer, method, details)
+                VALUES (?, '', ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("iss", $userId, $name, $details);
+        return $stmt->execute();
+    }
 }

@@ -15,7 +15,7 @@ class Product
         $query = "SELECT * FROM products";
         return $this->db->executeQuery($query);
     }
-    // Neues Produkt erstellen
+    // Neues Produkt erstellen so
     public function createProduct($name, $description, $price, $image) {
         $query = "INSERT INTO products (name, description, price, image) VALUES (?, ?, ?, ?)";
         $params = [$name, $description, $price, $image];

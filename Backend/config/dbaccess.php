@@ -21,20 +21,23 @@ class DBAccess
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
         }
+        $this->conn->set_charset("utf8mb4"); // Optional: Zeichenkodierung setzen
     }
 
     private function getParamTypes($params)
     {
         $types = '';
         foreach ($params as $param) {
-            if (is_int($param)) {
+            if (is_null($param)) {
+                $types .= 's'; // Behandle NULL als string (funktioniert sicherer in MySQL)
+            } elseif (is_int($param)) {
                 $types .= 'i';
             } elseif (is_float($param)) {
                 $types .= 'd';
             } elseif (is_string($param)) {
                 $types .= 's';
             } else {
-                $types .= 'b'; // blob или null
+                $types .= 'b'; // blob oder sonstige Typen
             }
         }
         return $types;
@@ -44,7 +47,7 @@ class DBAccess
     {
         $stmt = $this->conn->prepare($query);
         if (!$stmt) {
-            error_log("Query prepare failed: " . $this->conn->error);
+            error_log("Query prepare failed: " . $this->conn->error . " | SQL: $query");
             return false;
         }
 
@@ -54,15 +57,15 @@ class DBAccess
         }
 
         if (!$stmt->execute()) {
-            error_log("Query execute failed: " . $stmt->error);
+            error_log("Query execute failed: " . $stmt->error . " | SQL: $query | Params: " . json_encode($params));
             return false;
         }
 
         if (stripos(trim($query), 'SELECT') === 0) {
-            return $stmt->get_result(); // может вернуть false, если ошибка в fetch
+            return $stmt->get_result(); // Kann false zurückgeben bei Fehler
         }
 
-        return true;
+        return $stmt->affected_rows; // z. B. für INSERT/UPDATE/DELETE nützlich
     }
 
     public function getLastInsertId()
@@ -75,9 +78,28 @@ class DBAccess
         return $this->conn;
     }
 
+    // Optional: Transaktionssupport
+    public function beginTransaction()
+    {
+        return $this->conn->begin_transaction();
+    }
 
+    public function commit()
+    {
+        return $this->conn->commit();
+    }
 
+    public function rollback()
+    {
+        return $this->conn->rollback();
+    }
 
-
+    // Schließen (optional, da PHP dies beim Skriptende macht)
+    public function close()
+    {
+        if ($this->conn) {
+            $this->conn->close();
+        }
+    }
 }
 ?>

@@ -5,17 +5,22 @@ class Review {
     private $db;
 
     public function __construct() {
+        // DBAccess-Instanz für DB-Verbindung
         $this->db = new DBAccess();
     }
 
-    // Добавить отзыв
+    /**
+     * Neue Bewertung erstellen
+     */
     public function createReview($userId, $productId, $orderId, $rating, $comment) {
         $query = "INSERT INTO product_reviews (user_id, product_id, order_id, rating, comment) VALUES (?, ?, ?, ?, ?)";
         $params = [$userId, $productId, $orderId, $rating, $comment];
         return $this->db->executeQuery($query, $params);
     }
 
-    // Проверить, оставил ли пользователь отзыв на этот продукт в рамках этого заказа
+    /**
+     * Prüfen, ob der Nutzer für dieses Produkt in der Bestellung schon bewertet hat
+     */
     public function hasUserReviewed($userId, $productId, $orderId) {
         $query = "SELECT id FROM product_reviews WHERE user_id = ? AND product_id = ? AND order_id = ?";
         $params = [$userId, $productId, $orderId];
@@ -23,7 +28,9 @@ class Review {
         return ($result && $result->num_rows > 0);
     }
 
-    // Получить все отзывы для продукта
+    /**
+     * Alle Bewertungen zu einem Produkt abrufen
+     */
     public function getReviewsByProductId($productId) {
         $query = "SELECT r.rating, r.comment, r.created_at, u.vorname, u.nachname
                   FROM product_reviews r
@@ -42,31 +49,35 @@ class Review {
 
         return $reviews;
     }
+
+    /**
+     * Bewertung zu einem Produkt innerhalb einer Bestellung abrufen
+     */
     public function getReviewForOrderItem($productId, $orderId) {
-    $query = "SELECT rating, comment FROM product_reviews WHERE product_id = ? AND order_id = ?";
-    $params = [$productId, $orderId];
-    $result = $this->db->executeQuery($query, $params);
+        $query = "SELECT rating, comment FROM product_reviews WHERE product_id = ? AND order_id = ?";
+        $params = [$productId, $orderId];
+        $result = $this->db->executeQuery($query, $params);
 
-    if ($result && $result->num_rows > 0) {
-        return $result->fetch_assoc();
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+
+        return null;
     }
 
-    return null;
-}
-public function getUserReview($userId, $productId, $orderId) {
-    // echo "Getting review for user=$userId, product=$productId, order=$orderId";
-    $query = "SELECT rating, comment FROM product_reviews WHERE user_id = ? AND product_id = ? AND order_id = ?";
-    $params = [$userId, $productId, $orderId];
-    $result = $this->db->executeQuery($query, $params);
+    /**
+     * Bewertung eines Nutzers für ein Produkt in einer Bestellung abrufen
+     */
+    public function getUserReview($userId, $productId, $orderId) {
+        $query = "SELECT rating, comment FROM product_reviews WHERE user_id = ? AND product_id = ? AND order_id = ?";
+        $params = [$userId, $productId, $orderId];
+        $result = $this->db->executeQuery($query, $params);
 
-    if ($result && $result->num_rows > 0) {
-        return $result->fetch_assoc();
+        if ($result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+
+        return null;
     }
-
-    return null;
-}
-
-
-
 }
 ?>

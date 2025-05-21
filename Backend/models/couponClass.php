@@ -44,10 +44,10 @@ class Coupon {
         if ($result && is_object($result)) {
             return $result->fetch_assoc();
         }
-        return null; // Return null if the query fails or no result is found
+        return null; 
     }
 
-    // NEU: Gutschein Remaining Value aktualisieren
+    // NEU: Gutschein Remaining Value aktualisieren 
     public function updateRemainingValue($couponId, $newRemainingValue) {
         $status = $newRemainingValue <= 0 ? 'eingelöst' : 'aktiv';
         $query = "UPDATE coupons SET remaining_value = ?, status = ? WHERE id = ?";
